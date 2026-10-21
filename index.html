@@ -3,27 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Journal Paper Template Generator (Word 2010 Compatible)</title>
+  <title>Journal Header Generator (.docx) — Word 2010 Certified</title>
 
-  <!-- JSZip & FileSaver -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- Stable DOCX Engine (Zero Corruption in Word 2010) -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
     body {
       margin: 0;
-      padding: 24px;
+      padding: 20px;
       background: #0f172a;
       display: flex;
       justify-content: center;
     }
     .main-card {
       width: 100%;
-      max-width: 900px;
+      max-width: 950px;
       background: #ffffff;
       border-radius: 12px;
-      padding: 30px;
+      padding: 28px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     h2 {
@@ -32,21 +32,47 @@
       border-bottom: 2px solid #f5a623;
       padding-bottom: 8px;
     }
-    .template-box {
-      background: #f0fdf4;
-      border: 2px dashed #22c55e;
+    .example-box {
+      background: #eff6ff;
+      border: 1.5px solid #bfdbfe;
       border-radius: 8px;
-      padding: 18px;
+      padding: 16px;
       margin-bottom: 20px;
-      text-align: center;
     }
-    .template-box h3 { margin: 0 0 6px 0; color: #15803d; font-size: 16px; }
+    .example-box h3 {
+      margin: 0 0 6px 0;
+      font-size: 15px;
+      color: #1e40af;
+      display: flex;
+      justify-content: space-between;
+    }
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      resize: vertical;
+    }
+    .btn-parse {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-parse:hover { background: #1d4ed8; }
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
-    .form-group { margin-bottom: 14px; }
+    .form-group { margin-bottom: 12px; }
     label {
       display: block;
       font-size: 13px;
@@ -56,16 +82,64 @@
     }
     input {
       width: 100%;
-      padding: 10px 12px;
+      padding: 9px 12px;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       font-size: 13.5px;
       outline: none;
     }
-    input:focus { border-color: #2563eb; }
-    .btn-generate {
+    input:focus { border-color: #548DD4; }
+    .preview-section {
+      margin-top: 25px;
+      padding: 20px;
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+    }
+    .header-table {
       width: 100%;
-      padding: 15px;
+      border-collapse: collapse;
+      border-bottom: 2.5px solid #548DD4;
+      padding-bottom: 6px;
+    }
+    .logo-td {
+      width: 2.09cm;
+      padding-right: 12px;
+      border-right: 1.5px solid #548DD4;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .logo-img {
+      width: 2.09cm;
+      height: 2.07cm;
+      object-fit: contain;
+      display: block;
+    }
+    .content-td {
+      padding-left: 14px;
+      vertical-align: middle;
+    }
+    .j-title {
+      font-family: 'Segoe UI Black', Impact, sans-serif;
+      font-size: 14.5pt;
+      line-height: 1.15;
+      color: #548DD4;
+      font-weight: 900;
+      margin: 0;
+    }
+    .j-sub {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 9pt;
+      color: #334155;
+      margin-top: 5px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn-create {
+      width: 100%;
+      padding: 14px;
       background: #003366;
       color: #ffffff;
       font-size: 16px;
@@ -77,180 +151,272 @@
       letter-spacing: 0.5px;
       margin-top: 20px;
     }
-    .btn-generate:hover { background: #002244; }
+    .btn-create:hover { background: #002244; }
   </style>
 </head>
 <body>
 
 <div class="main-card">
-  <h2>Template-Based Journal .docx Generator (Word 2010 Fix)</h2>
+  <h2>Universal Journal Header Generator (.docx)</h2>
 
-  <!-- 1. OLD FILE UPLOAD -->
-  <div class="template-box">
-    <h3>1. Apni Purani Template File Upload Karein (.docx)</h3>
-    <p style="margin: 0 0 10px 0; font-size: 13px; color: #475569;">
-      Jaisa format chahiye, uski original .docx file select karein:
-    </p>
-    <input type="file" id="templateFileInput" accept=".docx" style="max-width: 400px; margin: 0 auto; display: block;">
+  <!-- EXAMPLE INPUT -->
+  <div class="example-box">
+    <h3>
+      <span>Purana Format / Example Yahan Paste Karein</span>
+      <span style="font-size: 11px; font-weight: normal; color: #475569;">Copy &amp; Paste Journal Header Text</span>
+    </h3>
+    <textarea id="exampleInput" rows="3" placeholder="American Journal of Animal Health & Veterinary Medicine
+Volume: 01, Issue: 01 | https://uscse.com/uscse/index.php/AJAHVM/ | ISSN: 3069-7840">American Journal of Animal Health & Veterinary Medicine
+Volume: 01, Issue: 01 | https://uscse.com/uscse/index.php/AJAHVM/ | ISSN: 3069-7840</textarea>
+    <button class="btn-parse" onclick="parseExample()">Fill Fields From Example (ऑटो-फ़िल करें)</button>
   </div>
 
-  <!-- 2. NEW DETAILS -->
+  <!-- EDITABLE DETAILS -->
   <div class="grid-2">
     <div>
       <div class="form-group">
-        <label>2. Naya Logo Chunein (Image - Optional):</label>
-        <input type="file" id="newLogoInput" accept="image/*">
-        <small style="color: #64748b; font-size: 11px;">Agar naya logo nahi chunenge to purana logo hi bana rahega.</small>
+        <label>Upload This Journal's Logo (PNG/JPG):</label>
+        <input type="file" id="logoUpload" accept="image/*">
+        <small style="color: #64748b; font-size: 11px;">Fixed Size: 2.09 cm Width &times; 2.07 cm Height</small>
       </div>
 
       <div class="form-group">
-        <label>Naya Journal Name:</label>
-        <input type="text" id="newJournalName" placeholder="Journal Title likhein" value="American Journal of Animal Health & Veterinary Medicine">
+        <label>Journal Full Name (14.5pt Segoe UI Black):</label>
+        <input type="text" id="jName" value="American Journal of Animal Health & Veterinary Medicine">
       </div>
 
       <div class="form-group">
-        <label>Naya ISSN Code:</label>
-        <input type="text" id="newISSN" placeholder="Jaise: 3069-7840" value="3069-7840">
+        <label>ISSN Code (9pt):</label>
+        <input type="text" id="jISSN" value="ISSN: 3069-7840">
       </div>
     </div>
 
     <div>
       <div class="grid-2">
         <div class="form-group">
-          <label>Naya Volume:</label>
-          <input type="text" id="newVolume" placeholder="Jaise: 02" value="01">
+          <label>Volume:</label>
+          <input type="text" id="jVol" value="Volume: 01">
         </div>
         <div class="form-group">
-          <label>Naya Issue:</label>
-          <input type="text" id="newIssue" placeholder="Jaise: 02" value="01">
+          <label>Issue:</label>
+          <input type="text" id="jIssue" value="Issue: 01">
         </div>
       </div>
 
       <div class="form-group">
-        <label>Naya URL / DOI Link:</label>
-        <input type="text" id="newURL" placeholder="https://..." value="https://uscse.com/uscse/index.php/AJAHVM/home">
+        <label>Journal Web Link / DOI URL (9pt):</label>
+        <input type="text" id="jURL" value="https://uscse.com/uscse/index.php/AJAHVM/">
       </div>
     </div>
   </div>
 
-  <button class="btn-generate" onclick="processAndDownloadTemplate()">Generate Updated MS Word (.docx)</button>
+  <!-- LIVE SCREEN PREVIEW -->
+  <div class="preview-section">
+    <div style="font-size: 11px; color: #64748b; font-weight: bold; margin-bottom: 8px;">LIVE SCREEN PREVIEW (NO BOX — ONLY BOTTOM LINE):</div>
+
+    <table class="header-table">
+      <tr>
+        <td class="logo-td" id="previewLogoCell" style="display: none;">
+          <img id="previewLogoImg" class="logo-img" alt="Logo">
+        </td>
+        <td class="content-td">
+          <div id="previewTitle" class="j-title">American Journal of Animal Health & Veterinary Medicine</div>
+          <div class="j-sub">
+            <span id="previewVolIssue" style="font-weight: 600;">Volume: 01, Issue: 01</span>
+            <span style="color: #548DD4; font-weight: bold;">|</span>
+            <span id="previewURL" style="color: #1d4ed8; text-decoration: underline;">https://uscse.com/uscse/index.php/AJAHVM/</span>
+            <span style="color: #548DD4; font-weight: bold;">|</span>
+            <span id="previewISSN" style="font-weight: 600;">ISSN: 3069-7840</span>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <button class="btn-create" onclick="createVerifiedDocx()">Download Clean MS Word (.docx)</button>
 </div>
 
 <script>
-  let templateArrayBuffer = null;
-  let newLogoArrayBuffer = null;
+  let activeLogoBuffer = null;
 
-  // Safe XML string escape taaki Word 2010 file corrupt na maane
-  function xmlEscape(str) {
-    if (!str) return '';
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&apos;');
+  // Example text parser
+  function parseExample() {
+    const raw = document.getElementById('exampleInput').value.trim();
+    if (!raw) return;
+
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length > 0) {
+      document.getElementById('jName').value = lines[0];
+    }
+
+    const issnMatch = raw.match(/ISSN[:\s]*([0-9]{4}-[0-9]{3}[0-9xX])/i) || raw.match(/ISSN[:\s]*([0-9\-]+)/i);
+    if (issnMatch) {
+      document.getElementById('jISSN').value = "ISSN: " + (issnMatch[1] || '').trim();
+    }
+
+    const urlMatch = raw.match(/(https?:\/\/[^\s|]+)/i);
+    if (urlMatch) {
+      document.getElementById('jURL').value = urlMatch[1].trim();
+    }
+
+    const volMatch = raw.match(/Volume[:\s]*([0-9A-Za-z]+)/i);
+    if (volMatch) {
+      document.getElementById('jVol').value = "Volume: " + volMatch[1].trim();
+    }
+
+    const issueMatch = raw.match(/Issue[:\s]*([0-9A-Za-z]+)/i);
+    if (issueMatch) {
+      document.getElementById('jIssue').value = "Issue: " + issueMatch[1].trim();
+    }
+
+    syncPreview();
   }
 
-  // Load Template File
-  document.getElementById('templateFileInput').addEventListener('change', async function(e) {
+  // Handle Logo Upload as binary array buffer
+  document.getElementById('logoUpload').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (file) {
-      templateArrayBuffer = await file.arrayBuffer();
-      alert("Template File Load Ho Gayi Hai! Ab naye details check karke Download dabayein.");
+      activeLogoBuffer = await file.arrayBuffer();
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        document.getElementById('previewLogoImg').src = evt.target.result;
+        document.getElementById('previewLogoCell').style.display = 'table-cell';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      activeLogoBuffer = null;
+      document.getElementById('previewLogoCell').style.display = 'none';
     }
   });
 
-  // Load New Logo
-  document.getElementById('newLogoInput').addEventListener('change', async function(e) {
-    const file = e.target.files[0];
-    if (file) {
-      newLogoArrayBuffer = await file.arrayBuffer();
-    }
+  // Realtime Preview Sync
+  function syncPreview() {
+    document.getElementById('previewTitle').innerText = document.getElementById('jName').value;
+    document.getElementById('previewVolIssue').innerText = document.getElementById('jVol').value + ", " + document.getElementById('jIssue').value;
+    document.getElementById('previewURL').innerText = document.getElementById('jURL').value;
+    document.getElementById('previewISSN').innerText = document.getElementById('jISSN').value;
+  }
+
+  ['jName', 'jVol', 'jIssue', 'jURL', 'jISSN'].forEach(id => {
+    document.getElementById(id).addEventListener('input', syncPreview);
   });
 
-  async function processAndDownloadTemplate() {
-    if (!templateArrayBuffer) {
-      alert("Kripya pehle apni purani template file (.docx) upload karein!");
-      return;
+  // MS Word Generation with NO BOX (Word 2010 Certified)
+  async function createVerifiedDocx() {
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, Header, Footer, AlignmentType, ImageRun, PageNumber } = docx;
+
+    const jName = document.getElementById('jName').value;
+    const volIssue = document.getElementById('jVol').value + ", " + document.getElementById('jIssue').value;
+    const jURL = document.getElementById('jURL').value;
+    const jISSN = document.getElementById('jISSN').value;
+
+    const headerCells = [];
+
+    // 1. Logo Cell (Only vertical right line & bottom blue line, NO BOX)
+    if (activeLogoBuffer) {
+      headerCells.push(new TableCell({
+        width: { size: 14, type: WidthType.PERCENTAGE },
+        borders: {
+          top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+          bottom: { style: BorderStyle.SINGLE, size: 18, color: "548DD4" },
+          right: { style: BorderStyle.SINGLE, size: 12, color: "548DD4" }
+        },
+        children: [
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new ImageRun({
+                data: activeLogoBuffer,
+                transformation: { width: 79, height: 78 } // 2.09cm x 2.07cm
+              })
+            ]
+          })
+        ]
+      }));
     }
 
-    try {
-      const zip = await JSZip.loadAsync(templateArrayBuffer);
+    // 2. Text Content Cell (Only bottom line, ALL other borders explicitly NONE)
+    headerCells.push(new TableCell({
+      width: { size: activeLogoBuffer ? 86 : 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        bottom: { style: BorderStyle.SINGLE, size: 18, color: "548DD4" }
+      },
+      children: [
+        new Paragraph({
+          spacing: { after: 50 },
+          children: [
+            new TextRun({
+              text: jName,
+              bold: true,
+              color: "548DD4",
+              size: 29, // 14.5 pt Segoe UI Black
+              font: "Segoe UI Black"
+            })
+          ]
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: volIssue, size: 18, font: "Segoe UI" }), // 9 pt
+            new TextRun({ text: "  |  ", color: "548DD4", bold: true, size: 18 }),
+            new TextRun({ text: jURL, color: "1D4ED8", underline: {}, size: 18, font: "Segoe UI" }),
+            new TextRun({ text: "  |  ", color: "548DD4", bold: true, size: 18 }),
+            new TextRun({ text: jISSN, size: 18, font: "Segoe UI" })
+          ]
+        })
+      ]
+    }));
 
-      // 1. Logo replace karna (Agar user ne diya hai)
-      if (newLogoArrayBuffer) {
-        const mediaFolder = zip.folder("word/media");
-        if (mediaFolder) {
-          mediaFolder.forEach((relativePath, file) => {
-            zip.file("word/media/" + relativePath, newLogoArrayBuffer);
-          });
-        }
-      }
+    // Header Table (All outer and vertical borders strictly cleared)
+    const headerTable = new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        bottom: { style: BorderStyle.SINGLE, size: 18, color: "548DD4" },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" }
+      },
+      rows: [ new TableRow({ children: headerCells }) ]
+    });
 
-      // 2. Safe Text Preparation (XML Safe Escaped)
-      const rawName = document.getElementById('newJournalName').value.trim();
-      const rawISSN = document.getElementById('newISSN').value.trim();
-      const rawVol = document.getElementById('newVolume').value.trim();
-      const rawIssue = document.getElementById('newIssue').value.trim();
-      const rawURL = document.getElementById('newURL').value.trim();
+    // Centered Footer Page Number
+    const footerParagraph = new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [
+        new TextRun({ children: [PageNumber.CURRENT], font: "Segoe UI", size: 18, bold: true })
+      ]
+    });
 
-      const safeName = xmlEscape(rawName);
-      const safeURL = xmlEscape(rawURL);
-      const safeISSN = xmlEscape(rawISSN);
-      const safeVol = xmlEscape(rawVol);
-      const safeIssue = xmlEscape(rawIssue);
+    // Margins: Top 3.34cm, Bottom/Left/Right 2.54cm
+    const doc = new Document({
+      sections: [{
+        properties: {
+          page: {
+            margin: { top: 1893, bottom: 1440, left: 1440, right: 1440 }
+          }
+        },
+        headers: { default: new Header({ children: [headerTable] }) },
+        footers: { default: new Footer({ children: [footerParagraph] }) },
+        children: [
+          new Paragraph({
+            spacing: { before: 200 },
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: "Research Paper Title", bold: true, size: 30, font: "Times New Roman" })
+            ]
+          })
+        ]
+      }]
+    });
 
-      // Sabhi Header aur Document files me safely replace karna
-      const targetFiles = [];
-      zip.forEach((path) => {
-        if (path.startsWith("word/header") || path === "word/document.xml") {
-          targetFiles.push(path);
-        }
-      });
-
-      for (let path of targetFiles) {
-        let content = await zip.file(path).async("string");
-
-        // Update Volume & Issue safely
-        if (safeVol) {
-          content = content.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${safeVol}`);
-        }
-        if (safeIssue) {
-          content = content.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${safeIssue}`);
-        }
-
-        // Update ISSN safely
-        if (safeISSN) {
-          content = content.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${safeISSN}`);
-        }
-
-        // Update URL safely
-        if (safeURL) {
-          content = content.replace(/https?:\/\/[a-zA-Z0-9\.\/\-_?=&;#]+/gi, safeURL);
-        }
-
-        // Update Journal Name safely
-        if (safeName) {
-          content = content.replace(/American Journal of Animal Health &amp; Veterinary Medicine/gi, safeName);
-          content = content.replace(/American Journal of Animal Health & Veterinary Medicine/gi, safeName);
-        }
-
-        zip.file(path, content);
-      }
-
-      // 3. Generate Validated Docx
-      const updatedBlob = await zip.generateAsync({
-        type: "blob",
-        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        compression: "DEFLATE"
-      });
-
-      saveAs(updatedBlob, (rawName.substring(0, 15) || "Journal_Paper") + "_Format.docx");
-
-    } catch (err) {
-      console.error(err);
-      alert("File generate karne me dikkat aayi. Kripya check karein ki file valid .docx hai.");
-    }
+    Packer.toBlob(doc).then(blob => {
+      saveAs(blob, (jName.substring(0, 15) || "Journal") + "_Header.docx");
+    });
   }
 </script>
 
