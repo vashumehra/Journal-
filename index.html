@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EDWIN INCORPORATION — Journal Template Updater</title>
+  <title>Edwin Incorporation — Journal Template Updater</title>
 
   <!-- JSZip & FileSaver -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -168,31 +168,31 @@
 <div class="card">
   <!-- Brand Header -->
   <div class="brand-header">
-    <img src="logo.png" alt="EDWIN INCORPORATION" class="brand-logo" width="58" height="58" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
+    <img src="logo.png" alt="Edwin Incorporation" class="brand-logo" width="58" height="58" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
     <div>
-      <h2 class="brand-title">EDWIN INCORPORATION</h2>
+      <h2 class="brand-title">Edwin Incorporation</h2>
       <p class="brand-sub">Research Paper Header &amp; Footer Automation Portal</p>
     </div>
   </div>
 
   <!-- 1. OLD FILE DROP / SELECT -->
   <div class="drop-zone" id="docDropZone" onclick="document.getElementById('docFile').click()">
-    <p id="docStatus">📁 1. OLD File Drag &amp; Drop it(.docx)</p>
-    <span>Header aur Footer dono ke URLs, VOLUME, ISSUE aur ISSN safe update honge</span>
+    <p id="docStatus">📁 1. OLD File Drag &amp; Drop Karein (.docx)</p>
+    <span>Header aur Footer dono ke URLs, volume, issue aur ISSN safe update honge</span>
     <input type="file" id="docFile" accept=".docx" style="display: none;">
   </div>
 
   <!-- 2. NEW LOGO DROP / SELECT -->
   <div class="drop-zone" id="logoDropZone" onclick="document.getElementById('logoFile').click()">
-    <p id="logoStatus">🖼 2. NEW Journal Logo Drag &amp; Drop it(Image)</p>
-    <span>Purane logo ki jagah NEW logo auto-replace ho jayega (OPTIONAL)</span>
+    <p id="logoStatus">🖼 2. NEW Journal Logo Drag &amp; Drop Karein (Image)</p>
+    <span>Purane logo ki jagah NEW logo auto-replace ho jayega (Optional)</span>
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
   </div>
 
   <!-- 3. BASIC FIELDS -->
   <div class="grid-row">
     <div class="input-group">
-      <label>NEW VOLUME:</label>
+      <label>NEW Volume:</label>
       <input type="text" id="valVol" placeholder="e.g. 08">
     </div>
     <div class="input-group">
@@ -203,11 +203,11 @@
 
   <div class="grid-row">
     <div class="input-group">
-      <label>NEW ISSN (OPTIONAL):</label>
+      <label>NEW ISSN (Optional):</label>
       <input type="text" id="valISSN" placeholder="e.g. 2589-2589">
     </div>
     <div class="input-group">
-      <label>NEW URL (OPTIONAL):</label>
+      <label>NEW URL (Optional):</label>
       <input type="text" id="valURL" placeholder="https://...">
     </div>
   </div>
@@ -294,18 +294,18 @@
       for (let path of targetXmls) {
         let text = await zip.file(path).async("string");
 
-        // 1. VOLUME & Issue update
-        if (vol) text = text.replace(/(VOLUME[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
+        // 1. Volume & Issue update
+        if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
         if (issue) text = text.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(issue)}`);
 
-        // 2. ISSN COMPLETE CLEANUP (Wiping both "3051" and residual "-0120")
+        // 2. ISSN COMPLETE SWEEP (Wiping 3051 and residual -0120 completely)
         if (issn) {
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/ISSN/i.test(pBlock)) {
-              let replaced = false;
+              let first = true;
               return pBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
-                if (!replaced) {
-                  replaced = true;
+                if (first) {
+                  first = false;
                   return `<w:t>E-ISSN: ${xmlSafe(issn)}</w:t>`;
                 }
                 return `<w:t></w:t>`;
@@ -313,19 +313,17 @@
             }
             return pBlock;
           });
-          // Ensure no stray -0120 remains anywhere in XML
           text = text.replace(/<w:t\b[^>]*>\s*-0120\s*<\/w:t>/gi, `<w:t></w:t>`);
         }
 
-        // 3. FOOTER ALIGNMENT & URL REPLACEMENT
+        // 3. FOOTER URL & EXACT SCHEMA TAB REPLACEMENT
         if (path.includes("footer")) {
-          // Remove right alignment completely and inject exact Right-Tab stop
-          text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '');
-          text = text.replace(/<w:pPr>/gi, '<w:pPr><w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
+          // Schema-valid replacement: replace <w:jc w:val="right"/> in place with right-tab
+          text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
         }
 
         if (url) {
-          // Hyperlink blocks
+          // Hyperlinks ke andar replacement
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             let replaced = false;
             return match.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
