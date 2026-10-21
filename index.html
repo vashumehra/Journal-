@@ -15,19 +15,14 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-body {
+    body {
       margin: 0;
       padding: 30px 15px;
       background-color: #081426;
-      /* Sabhi possible photo names ka fallback ek sath */
+      /* Background Image with Clean Overlay */
       background-image: 
         linear-gradient(rgba(8, 20, 38, 0.65), rgba(8, 20, 38, 0.65)), 
-        url('bg.jpg'),
-        url('bg-banner.jpg'),
-        url('background.jpg'),
-        url('background.jpg.png'),
-        url('image_6dc83e.jpg'),
-        url('image_6c8cb0.jpg');
+        url('bg.jpg');
       background-repeat: no-repeat;
       background-position: center center;
       background-attachment: fixed;
@@ -37,7 +32,7 @@ body {
       align-items: center;
       min-height: 100vh;
     }
-    
+
     /* Transparent Glass Form Card */
     .card {
       width: 100%;
@@ -173,7 +168,7 @@ body {
 <body>
 
 <div class="card">
-  <!-- Brand Header -->
+  <!-- Brand Header: Solid White Strip -->
   <div class="brand-header">
     <img src="logo.png" alt="Edwin Incorporation" class="brand-logo" width="58" height="58" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
     <div>
@@ -290,7 +285,7 @@ body {
       const issn = document.getElementById('valISSN').value.trim();
       const url = document.getElementById('valURL').value.trim();
 
-      // HEADER & FOOTER SABHI XML FILES SCAN KARNA
+      // HEADER & FOOTER DONO KE XML SCAN KARNA
       const targetXmls = [];
       zip.forEach((path) => {
         if ((path.startsWith("word/header") || path.startsWith("word/footer")) && path.endsWith(".xml")) {
@@ -310,21 +305,21 @@ body {
         // ISSN update
         if (issn) text = text.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${xmlSafe(issn)}`);
         
-        // URL EXACT REPLACEMENT (Header & Footer Dono Ke Liye)
+        // URL REPLACEMENT (Header & Footer)
         if (url) {
           // Hyperlink text replace
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             return match.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
           });
 
-          // Word ke separate text tags (jaise 'home' ya koi residual label) saaf karna
+          // Extra split runs clear karna
           text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t[^>]*>\s*home<\/w:t>/gi, `<w:t></w:t>`);
 
-          // Plain text URL pattern replacement (agar hyperlink tag ke bahar ho)
+          // Plain text URL pattern replacement
           text = text.replace(/https?:\/\/[a-zA-Z0-9\.\/\-_?=&;#]+/gi, (matched) => {
             if (matched.includes("schemas.openxmlformats") || matched.includes("w3.org") || matched.includes("microsoft.com")) {
-              return matched; // Word standard schemas ko na chhedein
+              return matched;
             }
             return xmlSafe(url);
           });
@@ -333,7 +328,7 @@ body {
         zip.file(path, text);
       }
 
-      // HEADER & FOOTER DONO KI RELATIONSHIPS (_rels) FILES SCAN KARNA
+      // HEADER & FOOTER DONO KI RELATIONSHIPS (_rels) FILES
       const relFiles = [];
       zip.forEach((path) => {
         if ((path.startsWith("word/_rels/header") || path.startsWith("word/_rels/footer")) && path.endsWith(".rels")) {
@@ -344,7 +339,6 @@ body {
       for (let rPath of relFiles) {
         if (url) {
           let relText = await zip.file(rPath).async("string");
-          // Target external hyperlinks ko replace karna
           relText = relText.replace(/Target="(https?:\/\/[^"]+)"/gi, (match, currentTarget) => {
             if (currentTarget.includes("schemas.openxmlformats") || currentTarget.includes("w3.org") || currentTarget.includes("microsoft.com")) {
               return match;
