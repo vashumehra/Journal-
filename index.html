@@ -15,15 +15,19 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    body {
+body {
       margin: 0;
       padding: 30px 15px;
       background-color: #081426;
+      /* Sabhi possible photo names ka fallback ek sath */
       background-image: 
-        linear-gradient(rgba(8, 20, 38, 0.70), rgba(8, 20, 38, 0.70)), 
+        linear-gradient(rgba(8, 20, 38, 0.65), rgba(8, 20, 38, 0.65)), 
         url('bg.jpg'),
         url('bg-banner.jpg'),
-        url('background.jpg');
+        url('background.jpg'),
+        url('background.jpg.png'),
+        url('image_6dc83e.jpg'),
+        url('image_6c8cb0.jpg');
       background-repeat: no-repeat;
       background-position: center center;
       background-attachment: fixed;
@@ -33,7 +37,7 @@
       align-items: center;
       min-height: 100vh;
     }
-
+    
     /* Transparent Glass Form Card */
     .card {
       width: 100%;
