@@ -19,7 +19,6 @@
       margin: 0;
       padding: 30px 15px;
       background-color: #081426;
-      /* Background Image with Clean Overlay */
       background-image: 
         linear-gradient(rgba(8, 20, 38, 0.65), rgba(8, 20, 38, 0.65)), 
         url('bg.jpg');
@@ -33,7 +32,6 @@
       min-height: 100vh;
     }
 
-    /* Transparent Glass Form Card */
     .card {
       width: 100%;
       max-width: 680px;
@@ -47,7 +45,6 @@
       border-top: 5px solid #0056b3;
     }
 
-    /* Solid White Header Strip */
     .brand-header {
       display: flex;
       align-items: center;
@@ -168,7 +165,7 @@
 <body>
 
 <div class="card">
-  <!-- Brand Header: Solid White Strip -->
+  <!-- Brand Header -->
   <div class="brand-header">
     <img src="logo.png" alt="Edwin Incorporation" class="brand-logo" width="58" height="58" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
     <div>
@@ -210,7 +207,7 @@
     </div>
     <div class="input-group">
       <label>NEW URL (Optional):</label>
-      <input type="text" id="valURL" placeholder="https://uscse.com/...">
+      <input type="text" id="valURL" placeholder="https://...">
     </div>
   </div>
 
@@ -305,30 +302,50 @@
         // ISSN update
         if (issn) text = text.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${xmlSafe(issn)}`);
         
-        // URL REPLACEMENT (Header & Footer)
+        // UNIVERSAL BULLETPROOF URL CLEANER (Header & Footer)
         if (url) {
-          // Hyperlink text replace
+          // A. Replace inside Hyperlinks (chahe jitne tukde ho, pehle me new URL dalo, baki blank karo)
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
-            return match.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
+            let replaced = false;
+            return match.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
+              if (!replaced) {
+                replaced = true;
+                return `<w:t>${xmlSafe(url)}</w:t>`;
+              }
+              return `<w:t></w:t>`;
+            });
           });
 
-          // Extra split runs clear karna
-          text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
-          text = text.replace(/<w:t[^>]*>\s*home<\/w:t>/gi, `<w:t></w:t>`);
-
-          // Plain text URL pattern replacement
-          text = text.replace(/https?:\/\/[a-zA-Z0-9\.\/\-_?=&;#]+/gi, (matched) => {
-            if (matched.includes("schemas.openxmlformats") || matched.includes("w3.org") || matched.includes("microsoft.com")) {
-              return matched;
+          // B. Target Paragraphs containing split journal URLs (like njournal, uscse, etc.)
+          text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
+            // Check if paragraph contains journal path remnants
+            if (/njournal|uscse|ejournal|index\.php/i.test(pBlock) && !pBlock.includes('<w:hyperlink')) {
+              let replaced = false;
+              return pBlock.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
+                if (/njournal|uscse|ejournal|index\.php|https?:\/\//i.test(tTag)) {
+                  if (!replaced) {
+                    replaced = true;
+                    return `<w:t>${xmlSafe(url)}</w:t>`;
+                  }
+                  return `<w:t></w:t>`;
+                }
+                return tTag;
+              });
             }
-            return xmlSafe(url);
+            return pBlock;
           });
+
+          // C. Delete lingering path chunks if still present anywhere
+          text = text.replace(/<w:t[^>]*>\s*njournal\.com[^<]*<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/<w:t[^>]*>\s*\/aij\/[^<]*<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/<w:t[^>]*>\s*\/ejsa[^<]*<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
         }
 
         zip.file(path, text);
       }
 
-      // HEADER & FOOTER DONO KI RELATIONSHIPS (_rels) FILES
+      // HEADER & FOOTER RELATIONSHIPS (_rels) FILES
       const relFiles = [];
       zip.forEach((path) => {
         if ((path.startsWith("word/_rels/header") || path.startsWith("word/_rels/footer")) && path.endsWith(".rels")) {
