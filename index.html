@@ -15,14 +15,17 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-body {
+    body {
       margin: 0;
       padding: 30px 15px;
       background-color: #081426;
-      /* Background poster with soft overlay */
+      /* Multiple fallback image names for poster */
       background-image: 
-        linear-gradient(rgba(8, 20, 38, 0.75), rgba(8, 20, 38, 0.75)), 
-        url('bg-banner.jpg');
+        linear-gradient(rgba(8, 20, 38, 0.70), rgba(8, 20, 38, 0.70)), 
+        url('bg.jpg'),
+        url('bg-banner.jpg'),
+        url('background.jpg'),
+        url('background.jpg.png');
       background-repeat: no-repeat;
       background-position: center center;
       background-attachment: fixed;
@@ -33,37 +36,39 @@ body {
       min-height: 100vh;
     }
 
-   .card {
+    /* Transparent Glass Form Card */
+    .card {
       width: 100%;
       max-width: 680px;
-      background: rgba(255, 255, 255, 0.15) !important; /* Transparent background */
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.75) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-top: 5px solid #0056b3;
     }
-   .brand-header {
+
+    /* Sirf Edwin Incorporation wala strip Solid White */
+    .brand-header {
       display: flex;
       align-items: center;
       gap: 15px;
-      background: #ffffff !important; /* Solid White */
-      padding: 14px 18px;
+      background: #ffffff !important;
+      padding: 12px 18px;
       border-radius: 10px;
       margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
     }
 
-.brand-logo {
+    .brand-logo {
       width: 58px;
       height: 58px;
       object-fit: contain;
     }
 
-.brand-title {
+    .brand-title {
       margin: 0;
       color: #003366;
       font-size: 22px;
@@ -71,18 +76,19 @@ body {
       line-height: 1.1;
     }
 
-   .brand-sub {
+    .brand-sub {
       margin: 3px 0 0 0;
       color: #475569;
       font-size: 12px;
       font-weight: 600;
+    }
     
-   .drop-zone {
-      border: 2px dashed #ffffff;
-      border-radius: 8px;
-      padding: 20px;
+    .drop-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.6);
+      border-radius: 10px;
+      padding: 18px;
       text-align: center;
-      background: rgba(255, 255, 255, 0.85); /* Halka white taaki text padha jaye */
+      background: rgba(255, 255, 255, 0.92);
       cursor: pointer;
       margin-bottom: 14px;
       transition: all 0.2s;
@@ -90,24 +96,20 @@ body {
 
     .drop-zone.active {
       border-color: #f5a623;
-      background: #eff6ff;
+      background: #ffffff;
     }
 
-.drop-zone {
-      border: 2px dashed #ffffff;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.85); /* Halka white taaki text padha jaye */
-      cursor: pointer;
-      margin-bottom: 14px;
-      transition: all 0.2s;
+    .drop-zone p {
+      margin: 0;
+      font-size: 14px;
+      color: #0f172a;
+      font-weight: 700;
     }
 
     .drop-zone span {
       display: block;
       font-size: 11px;
-      color: #64748b;
+      color: #475569;
       margin-top: 4px;
     }
 
@@ -118,28 +120,35 @@ body {
       margin-bottom: 12px;
     }
 
-.input-group label {
+    .input-group label {
       display: block;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
       color: #ffffff;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
     .input-group input {
       width: 100%;
-      padding: 9px 12px;
-      border: 1px solid #cbd5e1;
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: #ffffff;
       border-radius: 6px;
       font-size: 13.5px;
       outline: none;
+      color: #0f172a;
     }
 
-    .input-group input:focus { border-color: #0056b3; }
+    .input-group input:focus { 
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
+    }
 
     .btn-update {
       width: 100%;
       padding: 14px;
-      background: #003366;
+      background: #0284c7;
       color: #ffffff;
       font-size: 15px;
       font-weight: 800;
@@ -150,15 +159,16 @@ body {
       letter-spacing: 0.5px;
       margin-top: 15px;
       transition: background 0.2s;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
     }
 
-    .btn-update:hover { background: #001f3f; }
+    .btn-update:hover { background: #0369a1; }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <!-- Brand Header -->
+  <!-- Brand Header: Solid White -->
   <div class="brand-header">
     <img src="logo.png" alt="Edwin Incorporation" class="brand-logo" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
     <div>
@@ -252,7 +262,7 @@ body {
 
   async function processOldDocx() {
     if (!docBuffer) {
-      alert("Kripya pehle apni OLD template file (.docx) drop ya select karein!");
+      alert("Kripya pehle apni purani template file (.docx) drop ya select karein!");
       return;
     }
 
