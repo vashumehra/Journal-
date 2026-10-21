@@ -84,11 +84,11 @@
     .drop-zone {
       border: 2px dashed rgba(255, 255, 255, 0.6);
       border-radius: 10px;
-      padding: 18px;
+      padding: 16px;
       text-align: center;
       background: rgba(255, 255, 255, 0.92);
       cursor: pointer;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       transition: all 0.2s;
     }
 
@@ -99,7 +99,7 @@
 
     .drop-zone p {
       margin: 0;
-      font-size: 14px;
+      font-size: 13.5px;
       color: #0f172a;
       font-weight: 700;
     }
@@ -108,7 +108,11 @@
       display: block;
       font-size: 11px;
       color: #475569;
-      margin-top: 4px;
+      margin-top: 3px;
+    }
+
+    .full-row {
+      margin-bottom: 12px;
     }
 
     .grid-row {
@@ -155,7 +159,7 @@
       cursor: pointer;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-top: 15px;
+      margin-top: 14px;
       transition: background 0.2s;
       box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
     }
@@ -178,7 +182,7 @@
   <!-- 1. OLD FILE DROP / SELECT -->
   <div class="drop-zone" id="docDropZone" onclick="document.getElementById('docFile').click()">
     <p id="docStatus">📁 1. OLD File Drag &amp; Drop Karein (.docx)</p>
-    <span>Header aur Footer dono ke URLs, volume, issue aur ISSN safe update honge</span>
+    <span>Header aur Footer dono ke title, URLs, volume aur details automatically update honge</span>
     <input type="file" id="docFile" accept=".docx" style="display: none;">
   </div>
 
@@ -187,6 +191,14 @@
     <p id="logoStatus">🖼 2. NEW Journal Logo Drag &amp; Drop Karein (Image)</p>
     <span>Purane logo ki jagah NEW logo auto-replace ho jayega (Optional)</span>
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
+  </div>
+
+  <!-- NEW FIELD: JOURNAL TITLE -->
+  <div class="full-row">
+    <div class="input-group">
+      <label>NEW Journal Title (Optional):</label>
+      <input type="text" id="valTitle" placeholder="e.g. Europian Journal of Sustainable Agriculture">
+    </div>
   </div>
 
   <!-- 3. BASIC FIELDS -->
@@ -278,6 +290,7 @@
       }
 
       // 2. Form Values
+      const title = document.getElementById('valTitle').value.trim();
       const vol = document.getElementById('valVol').value.trim();
       const issue = document.getElementById('valIssue').value.trim();
       const issn = document.getElementById('valISSN').value.trim();
@@ -294,11 +307,29 @@
       for (let path of targetXmls) {
         let text = await zip.file(path).async("string");
 
-        // 1. Volume & Issue update
+        // A. JOURNAL TITLE REPLACEMENT
+        if (title && path.includes("header")) {
+          text = text.replace(/<w:txbxContent>[\s\S]*?<\/w:txbxContent>/gi, (tbBlock) => {
+            // Title box does NOT contain Volume, ISSN, or URLs
+            if (!/Volume|ISSN|http|www/i.test(tbBlock)) {
+              let first = true;
+              return tbBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
+                if (first) {
+                  first = false;
+                  return `<w:t>${xmlSafe(title)}</w:t>`;
+                }
+                return `<w:t></w:t>`;
+              });
+            }
+            return tbBlock;
+          });
+        }
+
+        // B. Volume & Issue update
         if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
         if (issue) text = text.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(issue)}`);
 
-        // 2. ISSN COMPLETE SWEEP (Wiping 3051 and residual -0120 completely)
+        // C. ISSN COMPLETE SWEEP
         if (issn) {
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/ISSN/i.test(pBlock)) {
@@ -316,9 +347,8 @@
           text = text.replace(/<w:t\b[^>]*>\s*-0120\s*<\/w:t>/gi, `<w:t></w:t>`);
         }
 
-        // 3. FOOTER URL & EXACT SCHEMA TAB REPLACEMENT
+        // D. FOOTER URL & EXACT SCHEMA TAB REPLACEMENT
         if (path.includes("footer")) {
-          // Schema-valid replacement: replace <w:jc w:val="right"/> in place with right-tab
           text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
         }
 
