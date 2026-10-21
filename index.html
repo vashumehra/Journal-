@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Journal Header & Footer Generator (.docx)</title>
-  
-  <!-- Docx.js and FileSaver.js -->
+
+  <!-- Docx.js & FileSaver.js for generating MS Word documents -->
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
@@ -20,7 +20,7 @@
     }
     .container {
       width: 100%;
-      max-width: 900px;
+      max-width: 950px;
       background: #ffffff;
       border-radius: 12px;
       padding: 30px;
@@ -53,21 +53,57 @@
       font-size: 13.5px;
       outline: none;
     }
-    input:focus { border-color: #3b82f6; }
+    input:focus { border-color: #548DD4; }
 
-    /* Exact Preview Box */
+    /* EXACT PREVIEW CARD MATCHING SCREENSHOT */
     .preview-card {
       margin-top: 25px;
       background: #ffffff;
       border: 1px dashed #94a3b8;
       border-radius: 8px;
-      padding: 20px;
+      padding: 25px 20px;
     }
     .header-table {
       width: 100%;
       border-collapse: collapse;
-      border-bottom: 2.5px solid #365f91;
-      padding-bottom: 8px;
+      border-bottom: 2.5px solid #548DD4;
+      padding-bottom: 4px;
+    }
+    .logo-cell {
+      width: 2.09cm;
+      min-width: 2.09cm;
+      padding-right: 12px;
+      border-right: 1.5px solid #548DD4;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .logo-img {
+      width: 2.09cm;
+      height: 2.07cm;
+      object-fit: contain;
+      display: block;
+    }
+    .text-cell {
+      padding-left: 14px;
+      vertical-align: middle;
+    }
+    .journal-title {
+      font-family: 'Segoe UI Black', Impact, sans-serif;
+      font-size: 14.5pt;
+      line-height: 1.15;
+      color: #548DD4;
+      font-weight: 900;
+      margin: 0;
+    }
+    .journal-sub {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 9pt;
+      color: #334155;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     .btn-create {
       width: 100%;
@@ -89,7 +125,7 @@
 <body>
 
 <div class="container">
-  <h2>Original Journal Format (.docx Generator)</h2>
+  <h2>Research Paper Header Generator (.docx)</h2>
 
   <div class="grid-2">
     <div>
@@ -99,7 +135,7 @@
       </div>
 
       <div class="form-group">
-        <label>Journal Full Name:</label>
+        <label>Journal Full Name (Title - 14.5pt Segoe UI Black):</label>
         <input type="text" id="jName" value="American Journal of Animal Health & Veterinary Medicine">
       </div>
 
@@ -122,31 +158,31 @@
       </div>
 
       <div class="form-group">
-        <label>Journal URL / DOI:</label>
-        <input type="text" id="jURL" value="https://uscse.com/uscse/index.php/AJAHVM/home">
+        <label>Journal Web Link / DOI URL:</label>
+        <input type="text" id="jURL" value="https://uscse.com/uscse/index.php/AJAHVM/">
       </div>
     </div>
   </div>
 
-  <!-- Realtime Live Preview (Matches Animal Health docx) -->
+  <!-- EXACT LIVE PREVIEW (MATCHES SCREENSHOT) -->
   <div class="preview-card">
     <div style="font-size: 11px; color: #64748b; font-weight: bold; margin-bottom: 10px;">EXACT LIVE PREVIEW:</div>
-    
+
     <table class="header-table">
       <tr>
-        <td style="width: 65px; vertical-align: middle; padding-right: 12px;">
-          <img id="prevLogo" style="width: 55px; height: 55px; object-fit: contain; display: none;">
-          <div id="noLogoBox" style="width: 50px; height: 50px; background: #e2e8f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b;">Logo</div>
-        </td>
-        <td style="vertical-align: middle;">
-          <div id="prevName" style="color: #365F91; font-weight: 800; font-size: 16px; font-family: 'Segoe UI Black', sans-serif;">
-            American Journal of Animal Health & Veterinary Medicine
+        <td class="logo-cell">
+          <img id="prevLogo" class="logo-img" style="display: none;" alt="Logo">
+          <div id="noLogoBox" style="width: 2.09cm; height: 2.07cm; background: #e2e8f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b;">
+            2.09 x 2.07
           </div>
-          <div style="font-size: 12px; color: #334155; margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        </td>
+        <td class="text-cell">
+          <div id="prevName" class="journal-title">American Journal of Animal Health & Veterinary Medicine</div>
+          <div class="journal-sub">
             <span id="prevVolIssue" style="font-weight: 600;">Volume: 01, Issue: 01</span>
-            <span style="color: #365F91; font-weight: bold;">|</span>
-            <span id="prevURL" style="color: #2563eb; text-decoration: underline;">https://uscse.com/uscse/index.php/AJAHVM/home</span>
-            <span style="color: #365F91; font-weight: bold;">|</span>
+            <span style="color: #548DD4; font-weight: bold;">|</span>
+            <span id="prevURL" style="color: #1d4ed8; text-decoration: underline;">https://uscse.com/uscse/index.php/AJAHVM/</span>
+            <span style="color: #548DD4; font-weight: bold;">|</span>
             <span id="prevISSN" style="font-weight: 600;">ISSN: 3069-7840</span>
           </div>
         </td>
@@ -154,7 +190,7 @@
     </table>
 
     <div style="text-align: center; color: #94a3b8; padding: 25px 0; font-size: 13px;">
-      [Header me right side se Volume/Issue hata diya gaya hai. Page number niche Footer me rahega.]
+      [Word Margin: Top 3.34cm | Bottom/Left/Right: 2.54cm. Header solid blue border ke saath Word file me set hoga.]
     </div>
   </div>
 
@@ -164,15 +200,16 @@
 <script>
   let logoArrayBuffer = null;
 
-  // Handle Logo Upload as binary data for Word
+  // Handle Logo Upload as binary data for Word (2.09cm x 2.07cm)
   document.getElementById('logoFile').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (file) {
       logoArrayBuffer = await file.arrayBuffer();
       const reader = new FileReader();
       reader.onload = function(evt) {
-        document.getElementById('prevLogo').src = evt.target.result;
-        document.getElementById('prevLogo').style.display = 'block';
+        const logo = document.getElementById('prevLogo');
+        logo.src = evt.target.result;
+        logo.style.display = 'block';
         document.getElementById('noLogoBox').style.display = 'none';
       };
       reader.readAsDataURL(file);
@@ -202,20 +239,23 @@
 
     const headerCells = [];
 
-    // Left Cell: Logo (if uploaded)
+    // Left Cell: Logo (2.09cm width x 2.07cm height = 79px x 78px) with vertical right separator
     if (logoArrayBuffer) {
       headerCells.push(new TableCell({
-        width: { size: 12, type: WidthType.PERCENTAGE },
+        width: { size: 14, type: WidthType.PERCENTAGE },
         borders: {
-          top: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
-          bottom: { style: BorderStyle.SINGLE, size: 18, color: "365F91" }
+          top: { style: BorderStyle.NONE },
+          left: { style: BorderStyle.NONE },
+          right: { style: BorderStyle.SINGLE, size: 12, color: "548DD4" },
+          bottom: { style: BorderStyle.SINGLE, size: 18, color: "548DD4" }
         },
         children: [
           new Paragraph({
+            alignment: AlignmentType.CENTER,
             children: [
               new ImageRun({
                 data: logoArrayBuffer,
-                transformation: { width: 48, height: 48 }
+                transformation: { width: 79, height: 78 }
               })
             ]
           })
@@ -223,27 +263,35 @@
       }));
     }
 
-    // Right/Main Cell: Journal Name on top, sub-details in single line below
+    // Right Cell: Title (14.5pt Segoe UI Black) + Sub-details (9pt)
     headerCells.push(new TableCell({
-      width: { size: logoArrayBuffer ? 88 : 100, type: WidthType.PERCENTAGE },
+      width: { size: logoArrayBuffer ? 86 : 100, type: WidthType.PERCENTAGE },
       borders: {
-        top: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE },
-        bottom: { style: BorderStyle.SINGLE, size: 18, color: "365F91" }
+        top: { style: BorderStyle.NONE },
+        left: { style: BorderStyle.NONE },
+        right: { style: BorderStyle.NONE },
+        bottom: { style: BorderStyle.SINGLE, size: 18, color: "548DD4" }
       },
       children: [
         new Paragraph({
+          spacing: { after: 60 },
           children: [
-            new TextRun({ text: jName, bold: true, color: "365F91", size: 23, font: "Segoe UI" })
+            new TextRun({
+              text: jName,
+              bold: true,
+              color: "548DD4",
+              size: 29, // 14.5 pt (in half-points)
+              font: "Segoe UI Black"
+            })
           ]
         }),
         new Paragraph({
-          spacing: { before: 50 },
           children: [
-            new TextRun({ text: volIssue, size: 16, font: "Segoe UI" }),
-            new TextRun({ text: "   |   ", color: "365F91", bold: true, size: 16 }),
-            new TextRun({ text: jURL, color: "2563EB", underline: {}, size: 16, font: "Segoe UI" }),
-            new TextRun({ text: "   |   ", color: "365F91", bold: true, size: 16 }),
-            new TextRun({ text: jISSN, size: 16, font: "Segoe UI" })
+            new TextRun({ text: volIssue, size: 18, font: "Segoe UI" }), // 9 pt
+            new TextRun({ text: "  |  ", color: "548DD4", bold: true, size: 18 }),
+            new TextRun({ text: jURL, color: "1D4ED8", underline: {}, size: 18, font: "Segoe UI" }),
+            new TextRun({ text: "  |  ", color: "548DD4", bold: true, size: 18 }),
+            new TextRun({ text: jISSN, size: 18, font: "Segoe UI" })
           ]
         })
       ]
@@ -262,23 +310,35 @@
       ]
     });
 
+    // Page Setup: Top 3.34 cm (1893 twips), Bottom/Left/Right 2.54 cm (1440 twips)
     const doc = new Document({
       sections: [{
         properties: {
-          page: { margin: { top: 720, right: 900, bottom: 720, left: 900 } }
+          page: {
+            margin: {
+              top: 1893,    // 3.34 cm
+              bottom: 1440, // 2.54 cm
+              left: 1440,   // 2.54 cm
+              right: 1440   // 2.54 cm
+            }
+          }
         },
         headers: { default: new Header({ children: [headerTable] }) },
         footers: { default: new Footer({ children: [footerParagraph] }) },
         children: [
           new Paragraph({
-            spacing: { before: 300 },
+            spacing: { before: 200 },
             alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: "Research Paper Title Goes Here", bold: true, size: 30, font: "Times New Roman" })]
+            children: [
+              new TextRun({ text: "Research Paper Title", bold: true, size: 30, font: "Times New Roman" })
+            ]
           }),
           new Paragraph({
-            spacing: { before: 150 },
+            spacing: { before: 120 },
             alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: "Author Details / Affiliation", italics: true, size: 20, font: "Times New Roman" })]
+            children: [
+              new TextRun({ text: "Author Name, Affiliation, Email ID", italics: true, size: 20, font: "Times New Roman" })
+            ]
           })
         ]
       }]
