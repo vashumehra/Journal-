@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research Paper Header & Footer Generator</title>
+  <style>
+    :root {
+      --primary-color: #0b1a30;
+      --accent-color: #f5a623;
+      --border-color: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #f1f5f9;
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Left Control Panel */
+    .controls-panel {
+      width: 380px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+
+    .controls-panel h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #334155;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent-color);
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 12px;
+      background-color: #003366;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .btn-action:hover {
+      background-color: #002244;
+    }
+
+    /* Right Preview Section (A4 simulation) */
+    .preview-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .a4-page {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 20mm 20mm 20mm 20mm;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* HEADER STYLES */
+    .paper-header {
+      border-bottom: 1.5px solid #000000;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo {
+      width: 65px;
+      height: 65px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .journal-details {
+      font-size: 11px;
+      line-height: 1.35;
+      color: #111;
+    }
+
+    .journal-title {
+      font-size: 14px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #002060;
+    }
+
+    .header-right {
+      text-align: right;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #222;
+    }
+
+    .header-right .vol-issue {
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    /* PAPER BODY (Dummy text for demo) */
+    .paper-body {
+      flex: 1;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.6;
+      border: 1px dashed #cbd5e1;
+      padding: 20px;
+      border-radius: 6px;
+      background: #f8fafc;
+      text-align: center;
+    }
+
+    /* FOOTER STYLES */
+    .paper-footer {
+      border-top: 1.5px solid #000000;
+      padding-top: 8px;
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10.5px;
+      color: #333;
+    }
+
+    .footer-left {
+      max-width: 75%;
+      line-height: 1.3;
+    }
+
+    .footer-right {
+      font-weight: bold;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+      .controls-panel {
+        display: none;
+      }
+      .preview-container {
+        width: 100%;
+      }
+      .a4-page {
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+        min-height: 100vh;
+        padding: 15mm;
+      }
+      .paper-body {
+        border: none;
+        background: transparent;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Controls Panel -->
+  <div class="controls-panel">
+    <h2>Paper Format Settings</h2>
+
+    <div class="form-group">
+      <label>Upload Journal Logo:</label>
+      <input type="file" id="logoUpload" accept="image/*">
+    </div>
+
+    <div class="form-group">
+      <label>Journal Name / Title:</label>
+      <input type="text" id="inputJournalName" value="Advance International Journal of Research and Innovation">
+    </div>
+
+    <div class="form-group">
+      <label>Journal Short Code / Subtitle:</label>
+      <input type="text" id="inputSubTitle" value="AIJRI | Peer Reviewed & Refereed Journal">
+    </div>
+
+    <div class="form-group">
+      <label>ISSN Number:</label>
+      <input type="text" id="inputISSN" value="ISSN: 2583-9999">
+    </div>
+
+    <div class="form-group" style="display: flex; gap: 8px;">
+      <div style="flex: 1;">
+        <label>Volume:</label>
+        <input type="text" id="inputVolume" value="Volume 03">
+      </div>
+      <div style="flex: 1;">
+        <label>Issue:</label>
+        <input type="text" id="inputIssue" value="Issue 05">
+      </div>
+    </div>
+
+    <div class="form-group" style="display: flex; gap: 8px;">
+      <div style="flex: 1;">
+        <label>Month & Year:</label>
+        <input type="text" id="inputDate" value="October 2026">
+      </div>
+      <div style="flex: 1;">
+        <label>Page Range:</label>
+        <input type="text" id="inputPage" value="pp. 101-108">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Journal Website / DOI link:</label>
+      <input type="text" id="inputWebsite" value="www.journal-aijri.com | DOI: 10.5555/aijri.2026">
+    </div>
+
+    <div class="form-group">
+      <label>Footer Copyright Note:</label>
+      <textarea id="inputFooterNote" rows="2">© 2026 AIJRI | Published under Creative Commons Attribution 4.0 International License</textarea>
+    </div>
+
+    <button class="btn-action" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <!-- A4 Preview Panel -->
+  <div class="preview-container">
+    <div class="a4-page">
+      
+      <!-- HEADER -->
+      <div class="paper-header">
+        <div class="header-left">
+          <img id="displayLogo" class="header-logo" alt="Logo">
+          <div class="journal-details">
+            <div id="dispJournalName" class="journal-title">Advance International Journal of Research and Innovation</div>
+            <div id="dispSubTitle" style="font-style: italic;">AIJRI | Peer Reviewed & Refereed Journal</div>
+            <div id="dispISSN">ISSN: 2583-9999</div>
+            <div id="dispWebsite" style="color: #0044cc;">www.journal-aijri.com | DOI: 10.5555/aijri.2026</div>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div id="dispVolIssue" class="vol-issue">Volume 03, Issue 05</div>
+          <div id="dispDate">October 2026</div>
+          <div id="dispPage">pp. 101-108</div>
+        </div>
+      </div>
+
+      <!-- BODY PLACEHOLDER -->
+      <div class="paper-body">
+        <h3 style="margin-top: 50px;">Aapka Research Paper Ka Title Yahan Aayega</h3>
+        <p style="font-style: italic;">Author Name, Designation, Institute, Email ID</p>
+        <p style="margin-top: 40px; max-width: 80%; margin-left: auto; margin-right: auto;">
+          Yeh preview area hai. Jab aap "Print / Save as PDF" karenge, tab sirf upar ka Header aur neeche ka Footer standard margin ke sath page par set ho jayega.
+        </p>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="paper-footer">
+        <div id="dispFooterNote" class="footer-left">
+          © 2026 AIJRI | Published under Creative Commons Attribution 4.0 International License
+        </div>
+        <div class="footer-right">
+          Page <span id="dispPageNum">1</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Realtime Update JavaScript -->
+  <script>
+    const bindInput = (inputId, displayId) => {
+      const input = document.getElementById(inputId);
+      const display = document.getElementById(displayId);
+      input.addEventListener('input', () => {
+        display.textContent = input.value;
+      });
+    };
+
+    // Binding text fields
+    bindInput('inputJournalName', 'dispJournalName');
+    bindInput('inputSubTitle', 'dispSubTitle');
+    bindInput('inputISSN', 'dispISSN');
+    bindInput('inputWebsite', 'dispWebsite');
+    bindInput('inputDate', 'dispDate');
+    bindInput('inputPage', 'dispPage');
+    bindInput('inputFooterNote', 'dispFooterNote');
+
+    // Volume & Issue Update Logic
+    const volInput = document.getElementById('inputVolume');
+    const issueInput = document.getElementById('inputIssue');
+    const dispVolIssue = document.getElementById('dispVolIssue');
+
+    const updateVolIssue = () => {
+      dispVolIssue.textContent = `${volInput.value}, ${issueInput.value}`;
+    };
+    volInput.addEventListener('input', updateVolIssue);
+    issueInput.addEventListener('input', updateVolIssue);
+
+    // Image Upload & Preview Logic
+    const logoUpload = document.getElementById('logoUpload');
+    const displayLogo = document.getElementById('displayLogo');
+
+    logoUpload.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          displayLogo.src = e.target.result;
+          displayLogo.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
