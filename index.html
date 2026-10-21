@@ -302,12 +302,12 @@
         // ISSN update
         if (issn) text = text.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${xmlSafe(issn)}`);
         
-        // UNIVERSAL BULLETPROOF URL CLEANER (Header & Footer)
+        // URL EXACT REPLACEMENT & ALIGNMENT PRESERVATION
         if (url) {
-          // A. Replace inside Hyperlinks (chahe jitne tukde ho, pehle me new URL dalo, baki blank karo)
+          // A. Agar hyperlink tag maujood hai toh pehle run me URL rakho, baki khali karo
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             let replaced = false;
-            return match.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
+            return match.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, () => {
               if (!replaced) {
                 replaced = true;
                 return `<w:t>${xmlSafe(url)}</w:t>`;
@@ -316,12 +316,12 @@
             });
           });
 
-          // B. Target Paragraphs containing split journal URLs (like njournal, uscse, etc.)
+          // B. Agar paragraph me URL split tags me tha (njournal, uscse, etc.)
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
-            // Check if paragraph contains journal path remnants
             if (/njournal|uscse|ejournal|index\.php/i.test(pBlock) && !pBlock.includes('<w:hyperlink')) {
               let replaced = false;
-              return pBlock.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
+              // Clean runs inside this paragraph
+              let updatedP = pBlock.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
                 if (/njournal|uscse|ejournal|index\.php|https?:\/\//i.test(tTag)) {
                   if (!replaced) {
                     replaced = true;
@@ -331,11 +331,16 @@
                 }
                 return tTag;
               });
+              // Ensure paragraph starts from left
+              if (!updatedP.includes('<w:jc')) {
+                updatedP = updatedP.replace(/<w:pPr>/, '<w:pPr><w:jc w:val="left"/>');
+              }
+              return updatedP;
             }
             return pBlock;
           });
 
-          // C. Delete lingering path chunks if still present anywhere
+          // C. Extra unwanted chunks agar bache hon toh wipe karein
           text = text.replace(/<w:t[^>]*>\s*njournal\.com[^<]*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t[^>]*>\s*\/aij\/[^<]*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t[^>]*>\s*\/ejsa[^<]*<\/w:t>/gi, `<w:t></w:t>`);
@@ -345,7 +350,7 @@
         zip.file(path, text);
       }
 
-      // HEADER & FOOTER RELATIONSHIPS (_rels) FILES
+      // RELATIONSHIPS (_rels) FILES FOR HYPERLINKS
       const relFiles = [];
       zip.forEach((path) => {
         if ((path.startsWith("word/_rels/header") || path.startsWith("word/_rels/footer")) && path.endsWith(".rels")) {
