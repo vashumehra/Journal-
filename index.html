@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Old Template Based Journal Paper Generator</title>
+  <title>Journal Paper Template Generator (Word 2010 Compatible)</title>
 
-  <!-- JSZip and FileSaver for editing original .docx files directly -->
+  <!-- JSZip & FileSaver -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
@@ -32,22 +32,15 @@
       border-bottom: 2px solid #f5a623;
       padding-bottom: 8px;
     }
-
-    /* Template Upload Box */
     .template-box {
       background: #f0fdf4;
       border: 2px dashed #22c55e;
       border-radius: 8px;
       padding: 18px;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
       text-align: center;
     }
-    .template-box h3 {
-      margin: 0 0 6px 0;
-      color: #15803d;
-      font-size: 16px;
-    }
-
+    .template-box h3 { margin: 0 0 6px 0; color: #15803d; font-size: 16px; }
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -70,7 +63,6 @@
       outline: none;
     }
     input:focus { border-color: #2563eb; }
-
     .btn-generate {
       width: 100%;
       padding: 15px;
@@ -86,28 +78,18 @@
       margin-top: 20px;
     }
     .btn-generate:hover { background: #002244; }
-
-    .info-tag {
-      background: #e2e8f0;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 12.5px;
-      color: #475569;
-      margin-top: 15px;
-      line-height: 1.5;
-    }
   </style>
 </head>
 <body>
 
 <div class="main-card">
-  <h2>Template-Based Journal .docx Generator</h2>
+  <h2>Template-Based Journal .docx Generator (Word 2010 Fix)</h2>
 
   <!-- 1. OLD FILE UPLOAD -->
   <div class="template-box">
     <h3>1. Apni Purani Template File Upload Karein (.docx)</h3>
     <p style="margin: 0 0 10px 0; font-size: 13px; color: #475569;">
-      Jaisa format chahiye, us journal ka purana paper ya template yahan chunein:
+      Jaisa format chahiye, uski original .docx file select karein:
     </p>
     <input type="file" id="templateFileInput" accept=".docx" style="max-width: 400px; margin: 0 auto; display: block;">
   </div>
@@ -116,19 +98,19 @@
   <div class="grid-2">
     <div>
       <div class="form-group">
-        <label>2. Naya Logo Chunein (Image - PNG / JPG):</label>
+        <label>2. Naya Logo Chunein (Image - Optional):</label>
         <input type="file" id="newLogoInput" accept="image/*">
-        <small style="color: #64748b; font-size: 11px;">Purani file ka logo is naye logo se replace ho jayega.</small>
+        <small style="color: #64748b; font-size: 11px;">Agar naya logo nahi chunenge to purana logo hi bana rahega.</small>
       </div>
 
       <div class="form-group">
-        <label>Naya Journal Name (Agar badalna ho):</label>
-        <input type="text" id="newJournalName" placeholder="Naya Journal Title likhein">
+        <label>Naya Journal Name:</label>
+        <input type="text" id="newJournalName" placeholder="Journal Title likhein" value="American Journal of Animal Health & Veterinary Medicine">
       </div>
 
       <div class="form-group">
         <label>Naya ISSN Code:</label>
-        <input type="text" id="newISSN" placeholder="Jaise: 3069-7840">
+        <input type="text" id="newISSN" placeholder="Jaise: 3069-7840" value="3069-7840">
       </div>
     </div>
 
@@ -136,23 +118,19 @@
       <div class="grid-2">
         <div class="form-group">
           <label>Naya Volume:</label>
-          <input type="text" id="newVolume" placeholder="Jaise: 02 ya Volume: 02">
+          <input type="text" id="newVolume" placeholder="Jaise: 02" value="01">
         </div>
         <div class="form-group">
           <label>Naya Issue:</label>
-          <input type="text" id="newIssue" placeholder="Jaise: 03 ya Issue: 03">
+          <input type="text" id="newIssue" placeholder="Jaise: 02" value="01">
         </div>
       </div>
 
       <div class="form-group">
         <label>Naya URL / DOI Link:</label>
-        <input type="text" id="newURL" placeholder="https://uscse.com/...">
+        <input type="text" id="newURL" placeholder="https://..." value="https://uscse.com/uscse/index.php/AJAHVM/home">
       </div>
     </div>
-  </div>
-
-  <div class="info-tag">
-    ✔ <strong>Original Layout Safe:</strong> Page Margins, Fonts, Color, Lines aur Divider bilkul aapki purani template file ke hisaab se rahenge. Sirf text aur logo naye se replace ho jayenge.
   </div>
 
   <button class="btn-generate" onclick="processAndDownloadTemplate()">Generate Updated MS Word (.docx)</button>
@@ -162,16 +140,27 @@
   let templateArrayBuffer = null;
   let newLogoArrayBuffer = null;
 
-  // Purani file ka buffer load karna
+  // Safe XML string escape taaki Word 2010 file corrupt na maane
+  function xmlEscape(str) {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  }
+
+  // Load Template File
   document.getElementById('templateFileInput').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (file) {
       templateArrayBuffer = await file.arrayBuffer();
-      alert("Purani Template File Load Ho Gayi Hai! Ab naye details bharkar Download dabayein.");
+      alert("Template File Load Ho Gayi Hai! Ab naye details check karke Download dabayein.");
     }
   });
 
-  // Naye logo ka buffer load karna
+  // Load New Logo
   document.getElementById('newLogoInput').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -179,7 +168,6 @@
     }
   });
 
-  // Docx Process & Replace Function
   async function processAndDownloadTemplate() {
     if (!templateArrayBuffer) {
       alert("Kripya pehle apni purani template file (.docx) upload karein!");
@@ -189,73 +177,79 @@
     try {
       const zip = await JSZip.loadAsync(templateArrayBuffer);
 
-      // 1. Agar naya logo diya hai, toh docx ke andar image replace karna
+      // 1. Logo replace karna (Agar user ne diya hai)
       if (newLogoArrayBuffer) {
-        // Word file me media folder me images hoti hain
-        let replacedImage = false;
-        zip.folder("word/media").forEach((relativePath, file) => {
-          if (!replacedImage) {
+        const mediaFolder = zip.folder("word/media");
+        if (mediaFolder) {
+          mediaFolder.forEach((relativePath, file) => {
             zip.file("word/media/" + relativePath, newLogoArrayBuffer);
-            replacedImage = true;
-          }
-        });
-      }
-
-      // 2. Header aur Document XML me Text update karna
-      const newName = document.getElementById('newJournalName').value.trim();
-      const newISSN = document.getElementById('newISSN').value.trim();
-      const newVol = document.getElementById('newVolume').value.trim();
-      const newIssue = document.getElementById('newIssue').value.trim();
-      const newURL = document.getElementById('newURL').value.trim();
-
-      // Tamam XML files ko check karke text replace karna
-      const xmlFiles = ["word/header1.xml", "word/header2.xml", "word/header3.xml", "word/document.xml"];
-
-      for (let path of xmlFiles) {
-        const file = zip.file(path);
-        if (file) {
-          let content = await file.async("string");
-
-          // Volume replace
-          if (newVol) {
-            content = content.replace(/Volume:\s*[0-9A-Za-z]+/gi, "Volume: " + newVol.replace(/Volume:\s*/i, ''));
-            content = content.replace(/Volume\s*[0-9A-Za-z]+/gi, "Volume " + newVol.replace(/Volume\s*/i, ''));
-          }
-
-          // Issue replace
-          if (newIssue) {
-            content = content.replace(/Issue:\s*[0-9A-Za-z]+/gi, "Issue: " + newIssue.replace(/Issue:\s*/i, ''));
-            content = content.replace(/Issue\s*[0-9A-Za-z]+/gi, "Issue " + newIssue.replace(/Issue\s*/i, ''));
-          }
-
-          // ISSN replace
-          if (newISSN) {
-            content = content.replace(/ISSN[:\s]*[0-9\-xX]+/gi, "ISSN: " + newISSN.replace(/ISSN[:\s]*/i, ''));
-          }
-
-          // URL replace
-          if (newURL) {
-            content = content.replace(/https?:\/\/[a-zA-Z0-9\.\/\-_?=&]+/gi, newURL);
-          }
-
-          // Title replace
-          if (newName) {
-            // Previous title pattern match
-            content = content.replace(/American Journal of Animal Health &amp; Veterinary Medicine/gi, newName);
-            content = content.replace(/American Journal of Animal Health & Veterinary Medicine/gi, newName);
-          }
-
-          zip.file(path, content);
+          });
         }
       }
 
-      // 3. New File generate karke save karna
-      const updatedBlob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
-      saveAs(updatedBlob, (newName.substring(0, 15) || "Updated_Paper") + "_Format.docx");
+      // 2. Safe Text Preparation (XML Safe Escaped)
+      const rawName = document.getElementById('newJournalName').value.trim();
+      const rawISSN = document.getElementById('newISSN').value.trim();
+      const rawVol = document.getElementById('newVolume').value.trim();
+      const rawIssue = document.getElementById('newIssue').value.trim();
+      const rawURL = document.getElementById('newURL').value.trim();
+
+      const safeName = xmlEscape(rawName);
+      const safeURL = xmlEscape(rawURL);
+      const safeISSN = xmlEscape(rawISSN);
+      const safeVol = xmlEscape(rawVol);
+      const safeIssue = xmlEscape(rawIssue);
+
+      // Sabhi Header aur Document files me safely replace karna
+      const targetFiles = [];
+      zip.forEach((path) => {
+        if (path.startsWith("word/header") || path === "word/document.xml") {
+          targetFiles.push(path);
+        }
+      });
+
+      for (let path of targetFiles) {
+        let content = await zip.file(path).async("string");
+
+        // Update Volume & Issue safely
+        if (safeVol) {
+          content = content.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${safeVol}`);
+        }
+        if (safeIssue) {
+          content = content.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${safeIssue}`);
+        }
+
+        // Update ISSN safely
+        if (safeISSN) {
+          content = content.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${safeISSN}`);
+        }
+
+        // Update URL safely
+        if (safeURL) {
+          content = content.replace(/https?:\/\/[a-zA-Z0-9\.\/\-_?=&;#]+/gi, safeURL);
+        }
+
+        // Update Journal Name safely
+        if (safeName) {
+          content = content.replace(/American Journal of Animal Health &amp; Veterinary Medicine/gi, safeName);
+          content = content.replace(/American Journal of Animal Health & Veterinary Medicine/gi, safeName);
+        }
+
+        zip.file(path, content);
+      }
+
+      // 3. Generate Validated Docx
+      const updatedBlob = await zip.generateAsync({
+        type: "blob",
+        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        compression: "DEFLATE"
+      });
+
+      saveAs(updatedBlob, (rawName.substring(0, 15) || "Journal_Paper") + "_Format.docx");
 
     } catch (err) {
       console.error(err);
-      alert("File update karne me dikkat aayi. Kripya check karein ki file valid .docx hai.");
+      alert("File generate karne me dikkat aayi. Kripya check karein ki file valid .docx hai.");
     }
   }
 </script>
