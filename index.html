@@ -15,12 +15,15 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    body {
+   body {
       margin: 0;
       padding: 30px 15px;
       background-color: #081426;
-      /* Edwin Banner Background with Contrast Overlay */
-      background-image: linear-gradient(rgba(8, 20, 38, 0.82), rgba(8, 20, 38, 0.82)), url('background.jpg');
+      background-image: 
+        linear-gradient(rgba(8, 20, 38, 0.78), rgba(8, 20, 38, 0.78)), 
+        url('background.jpg'),
+        url('background.png'),
+        url('background.jpeg');
       background-repeat: no-repeat;
       background-position: center center;
       background-attachment: fixed;
@@ -29,6 +32,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+    }
     }
 
     .card {
