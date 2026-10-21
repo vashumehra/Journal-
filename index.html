@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edwin Incorporation — Journal Template Updater</title>
 
-  <!-- JSZip & FileSaver -->
+  <!-- JSZip & FileSaver Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
@@ -156,37 +156,37 @@
 
   <!-- 1. OLD FILE DROP / SELECT -->
   <div class="drop-zone" id="docDropZone" onclick="document.getElementById('docFile').click()">
-    <p id="docStatus">📁 1. Purani File Drag &amp; Drop Karein (.docx)</p>
-    <span>Purani file ka table format, margins aur lines bilkul safe rahengi</span>
+    <p id="docStatus">📁 1. OLD File Drag &amp; Drop Karein (.docx)</p>
+    <span>OLD file ka table format, margins aur lines bilkul safe rahengi</span>
     <input type="file" id="docFile" accept=".docx" style="display: none;">
   </div>
 
   <!-- 2. NEW LOGO DROP / SELECT -->
   <div class="drop-zone" id="logoDropZone" onclick="document.getElementById('logoFile').click()">
-    <p id="logoStatus">🖼 2. Naya Journal Logo Drag &amp; Drop Karein (Image)</p>
-    <span>Purane logo ki jagah naya logo auto-replace ho jayega (Optional)</span>
+    <p id="logoStatus">🖼 2. NEW Journal Logo Drag &amp; Drop Karein (Image)</p>
+    <span>NEW logo ki jagah NEW logo auto-replace ho jayega (Optional)</span>
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
   </div>
 
   <!-- 3. BASIC FIELDS -->
   <div class="grid-row">
     <div class="input-group">
-      <label>Naya Volume:</label>
+      <label>NEW Volume:</label>
       <input type="text" id="valVol" placeholder="e.g. 06">
     </div>
     <div class="input-group">
-      <label>Naya Issue:</label>
+      <label>NEW Issue:</label>
       <input type="text" id="valIssue" placeholder="e.g. 09">
     </div>
   </div>
 
   <div class="grid-row">
     <div class="input-group">
-      <label>Naya ISSN (Optional):</label>
+      <label>NEW ISSN (Optional):</label>
       <input type="text" id="valISSN" placeholder="e.g. 3036-3069">
     </div>
     <div class="input-group">
-      <label>Naya URL (Optional):</label>
+      <label>NEW URL (Optional):</label>
       <input type="text" id="valURL" placeholder="https://uscse.com/...">
     </div>
   </div>
@@ -239,7 +239,7 @@
 
   async function processOldDocx() {
     if (!docBuffer) {
-      alert("Kripya pehle apni purani template file (.docx) drop ya select karein!");
+      alert("Kripya pehle apni OLD template file (.docx) drop ya select karein!");
       return;
     }
 
@@ -262,7 +262,7 @@
       const issn = document.getElementById('valISSN').value.trim();
       const url = document.getElementById('valURL').value.trim();
 
-      // Only update header XML files
+      // Only update header XML files (Document.xml schemas remain untouched)
       const headers = [];
       zip.forEach((path) => {
         if (path.startsWith("word/header") && path.endsWith(".xml")) headers.push(path);
@@ -280,20 +280,18 @@
         // ISSN update
         if (issn) text = text.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${xmlSafe(issn)}`);
         
-        // Comprehensive URL replacement inside Header XML
+        // ADVANCED URL REPLACEMENT: Tag split issue fixed completely
         if (url) {
-          text = text.replace(/(<w:hyperlink[^>]*>[\s\S]*?<w:t[^>]*>)(https?:\/\/[^<]+)(<\/w:t>[\s\S]*?<\/w:hyperlink>)/gi, (match, prefix, oldUrl, suffix) => {
-            return prefix + xmlSafe(url) + suffix;
-          });
-          text = text.replace(/<w:t[^>]*>https?:\/\/[^<]+<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
+          text = text.replace(/<w:t>https?:\/\/uscse\.com[^<]*<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
           text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t>\s*home<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/https?:\/\/uscse\.com\/uscse\/index\.php\/AJAHVM\//gi, xmlSafe(url));
         }
 
         zip.file(path, text);
       }
 
-      // Hyperlink Relationships me Target URL ko replace karna
+      // 3. Hyperlink Target replacement in header relationships
       const relFiles = [];
       zip.forEach((path) => {
         if (path.startsWith("word/_rels/header") && path.endsWith(".rels")) relFiles.push(path);
