@@ -298,7 +298,7 @@
         if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
         if (issue) text = text.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(issue)}`);
 
-        // 2. ISSN COMPLETE CLEANUP (Wipes both "3051" and "-0120")
+        // 2. ISSN COMPLETE CLEANUP (Wiping both "3051" and residual "-0120")
         if (issn) {
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/ISSN/i.test(pBlock)) {
@@ -313,16 +313,19 @@
             }
             return pBlock;
           });
+          // Ensure no stray -0120 remains anywhere in XML
+          text = text.replace(/<w:t\b[^>]*>\s*-0120\s*<\/w:t>/gi, `<w:t></w:t>`);
         }
 
-        // 3. FOOTER URL & ALIGNMENT FIX
-        if (url) {
-          // Footer paragraph ko Left align karna aur Right Tab set karna
-          if (path.includes("footer")) {
-            text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:jc w:val="left"/><w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
-          }
+        // 3. FOOTER ALIGNMENT & URL REPLACEMENT
+        if (path.includes("footer")) {
+          // Remove right alignment completely and inject exact Right-Tab stop
+          text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '');
+          text = text.replace(/<w:pPr>/gi, '<w:pPr><w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
+        }
 
-          // Hyperlinks ke andar replacement
+        if (url) {
+          // Hyperlink blocks
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             let replaced = false;
             return match.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
@@ -334,11 +337,11 @@
             });
           });
 
-          // Footer & Header paragraphs me plain URLs clean karna
+          // Plain text URLs in paragraphs
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/https?:\/\/|njournal|uscse|ejournal|index\.php/i.test(pBlock) && !pBlock.includes('<w:hyperlink')) {
               let replaced = false;
-              let updatedP = pBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
+              return pBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
                 if (/https?:\/\/|njournal|uscse|ejournal|index\.php/i.test(tTag)) {
                   if (!replaced) {
                     replaced = true;
@@ -348,18 +351,14 @@
                 }
                 return tTag;
               });
-              // Force left alignment in this paragraph
-              updatedP = updatedP.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:jc w:val="left"/><w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
-              return updatedP;
             }
             return pBlock;
           });
 
-          // Unwanted remnants saaf karna
+          // Clean lingering pieces
           text = text.replace(/<w:t\b[^>]*>\s*njournal\.com[^<]*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t\b[^>]*>\s*\/aij\/[^<]*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t\b[^>]*>\s*\/ejsa[^<]*<\/w:t>/gi, `<w:t></w:t>`);
-          text = text.replace(/<w:t\b[^>]*>\s*-0120\s*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
         }
 
