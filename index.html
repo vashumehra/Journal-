@@ -267,7 +267,7 @@
     try {
       const zip = await JSZip.loadAsync(docBuffer);
 
-      // 1. Logo replacement
+      // 1. Logo replace in word/media
       if (logoBuffer) {
         const media = zip.folder("word/media");
         if (media) {
@@ -298,12 +298,12 @@
         if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
         if (issue) text = text.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(issue)}`);
 
-        // 2. E-ISSN EXACT REPLACEMENT (Handling split tags like "3051" and "-0120")
+        // 2. ISSN COMPLETE CLEANUP (Wipes both "3051" and "-0120")
         if (issn) {
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/ISSN/i.test(pBlock)) {
               let replaced = false;
-              return pBlock.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, (tMatch) => {
+              return pBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
                 if (!replaced) {
                   replaced = true;
                   return `<w:t>E-ISSN: ${xmlSafe(issn)}</w:t>`;
@@ -315,17 +315,17 @@
           });
         }
 
-        // 3. FOOTER URL & ALIGNMENT FIX (Force Left Alignment so it never jumps to center)
+        // 3. FOOTER URL & ALIGNMENT FIX
         if (url) {
-          // If file is footer, replace right alignment with left alignment & right-tab for page number
+          // Footer paragraph ko Left align karna aur Right Tab set karna
           if (path.includes("footer")) {
             text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:jc w:val="left"/><w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
           }
 
-          // Replace inside hyperlinks
+          // Hyperlinks ke andar replacement
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             let replaced = false;
-            return match.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, () => {
+            return match.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
               if (!replaced) {
                 replaced = true;
                 return `<w:t>${xmlSafe(url)}</w:t>`;
@@ -334,11 +334,11 @@
             });
           });
 
-          // Replace paragraph plain URLs (clearing extra residual tags)
+          // Footer & Header paragraphs me plain URLs clean karna
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/https?:\/\/|njournal|uscse|ejournal|index\.php/i.test(pBlock) && !pBlock.includes('<w:hyperlink')) {
               let replaced = false;
-              let updatedP = pBlock.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
+              let updatedP = pBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
                 if (/https?:\/\/|njournal|uscse|ejournal|index\.php/i.test(tTag)) {
                   if (!replaced) {
                     replaced = true;
@@ -348,24 +348,25 @@
                 }
                 return tTag;
               });
-              // Make sure paragraph is left aligned
+              // Force left alignment in this paragraph
               updatedP = updatedP.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:jc w:val="left"/><w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
               return updatedP;
             }
             return pBlock;
           });
 
-          // Clean lingering pieces
-          text = text.replace(/<w:t[^>]*>\s*njournal\.com[^<]*<\/w:t>/gi, `<w:t></w:t>`);
-          text = text.replace(/<w:t[^>]*>\s*\/aij\/[^<]*<\/w:t>/gi, `<w:t></w:t>`);
-          text = text.replace(/<w:t[^>]*>\s*\/ejsa[^<]*<\/w:t>/gi, `<w:t></w:t>`);
+          // Unwanted remnants saaf karna
+          text = text.replace(/<w:t\b[^>]*>\s*njournal\.com[^<]*<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/<w:t\b[^>]*>\s*\/aij\/[^<]*<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/<w:t\b[^>]*>\s*\/ejsa[^<]*<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/<w:t\b[^>]*>\s*-0120\s*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
         }
 
         zip.file(path, text);
       }
 
-      // RELATIONSHIPS (_rels) FOR EXTERNAL LINKS
+      // RELATIONSHIPS (_rels) FOR EXTERNAL HYPERLINKS
       const relFiles = [];
       zip.forEach((path) => {
         if ((path.startsWith("word/_rels/header") || path.startsWith("word/_rels/footer")) && path.endsWith(".rels")) {
