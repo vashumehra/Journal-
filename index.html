@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Journal Header Generator (.docx)</title>
+  <title>Smart Example-Based Journal Header Generator (.docx)</title>
 
-  <!-- Libraries for MS Word (.docx) generation -->
+  <!-- Docx.js & FileSaver.js -->
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
@@ -13,17 +13,17 @@
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
     body {
       margin: 0;
-      padding: 24px;
+      padding: 20px;
       background: #0f172a;
       display: flex;
       justify-content: center;
     }
     .main-card {
       width: 100%;
-      max-width: 950px;
+      max-width: 980px;
       background: #ffffff;
       border-radius: 12px;
-      padding: 30px;
+      padding: 28px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     h2 {
@@ -32,6 +32,46 @@
       border-bottom: 2px solid #f5a623;
       padding-bottom: 8px;
     }
+    
+    /* Example Input Box */
+    .example-box {
+      background: #eff6ff;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .example-box h3 {
+      margin: 0 0 8px 0;
+      font-size: 15px;
+      color: #1e40af;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+      resize: vertical;
+    }
+    .btn-parse {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-parse:hover { background: #1d4ed8; }
+
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -54,16 +94,8 @@
       outline: none;
     }
     input:focus { border-color: #548DD4; }
-    .upload-btn-box {
-      border: 2px dashed #94a3b8;
-      border-radius: 6px;
-      padding: 10px;
-      text-align: center;
-      background: #f8fafc;
-      cursor: pointer;
-    }
 
-    /* Live Preview Section (Strictly Bottom Line, No Box) */
+    /* Live Preview Section */
     .preview-section {
       margin-top: 25px;
       padding: 20px;
@@ -134,22 +166,36 @@
 <div class="main-card">
   <h2>Journal Header Generator (.docx)</h2>
 
+  <!-- 1. EXAMPLE INPUT SECTION -->
+  <div class="example-box">
+    <h3>
+      <span>Paste Journal Example Here (उदाहरण यहाँ पेस्ट करें)</span>
+      <span style="font-size: 11px; font-weight: normal; color: #475569;">Copy &amp; Paste any paper header text</span>
+    </h3>
+    <textarea id="exampleInput" rows="3" placeholder="Example format paste karein jaise:
+American Journal of Animal Health &amp; Veterinary Medicine
+Volume: 01, Issue: 01 | https://uscse.com/uscse/index.php/AJAHVM/ | ISSN: 3069-7840">American Journal of Animal Health & Veterinary Medicine
+Volume: 01, Issue: 01 | https://uscse.com/uscse/index.php/AJAHVM/ | ISSN: 3069-7840</textarea>
+    <button class="btn-parse" onclick="parseExample()">Apply This Example (उदाहरण से फ़ील्ड्स भरें)</button>
+  </div>
+
+  <!-- 2. EDITABLE FORM FIELDS -->
   <div class="grid-2">
     <div>
       <div class="form-group">
-        <label>Upload This Journal's Logo (PNG/JPG):</label>
-        <input type="file" id="userLogoFile" accept="image/png, image/jpeg, image/jpg">
-        <small style="color: #64748b; font-size: 11px;">Fixed Size: 2.09 cm Width × 2.07 cm Height</small>
+        <label>Upload Logo For This Journal (Image):</label>
+        <input type="file" id="userLogoFile" accept="image/*">
+        <small style="color: #64748b; font-size: 11px;">Fixed Size: 2.09 cm Width &times; 2.07 cm Height</small>
       </div>
 
       <div class="form-group">
-        <label>Journal Full Name (Title - 14.5pt):</label>
-        <input type="text" id="jName" placeholder="Enter Journal Name" value="American Journal of Animal Health & Veterinary Medicine">
+        <label>Journal Full Name (Title - 14.5pt Segoe UI Black):</label>
+        <input type="text" id="jName" value="American Journal of Animal Health & Veterinary Medicine">
       </div>
 
       <div class="form-group">
         <label>ISSN Number (9pt):</label>
-        <input type="text" id="jISSN" placeholder="e.g. ISSN: 3069-7840" value="ISSN: 3069-7840">
+        <input type="text" id="jISSN" value="ISSN: 3069-7840">
       </div>
     </div>
 
@@ -157,29 +203,29 @@
       <div class="grid-2">
         <div class="form-group">
           <label>Volume:</label>
-          <input type="text" id="jVol" placeholder="Volume: 01" value="Volume: 01">
+          <input type="text" id="jVol" value="Volume: 01">
         </div>
         <div class="form-group">
           <label>Issue:</label>
-          <input type="text" id="jIssue" placeholder="Issue: 01" value="Issue: 01">
+          <input type="text" id="jIssue" value="Issue: 01">
         </div>
       </div>
 
       <div class="form-group">
         <label>Journal Web Link / DOI URL (9pt):</label>
-        <input type="text" id="jURL" placeholder="https://..." value="https://uscse.com/uscse/index.php/AJAHVM/">
+        <input type="text" id="jURL" value="https://uscse.com/uscse/index.php/AJAHVM/">
       </div>
     </div>
   </div>
 
-  <!-- Realtime Live Preview -->
+  <!-- 3. LIVE SCREEN PREVIEW -->
   <div class="preview-section">
     <div style="font-size: 11px; color: #64748b; font-weight: bold; margin-bottom: 8px;">LIVE SCREEN PREVIEW:</div>
 
     <table class="header-table">
       <tr>
         <td class="logo-td" id="previewLogoCell" style="display: none;">
-          <img id="previewLogoImg" class="logo-img" alt="Uploaded Logo">
+          <img id="previewLogoImg" class="logo-img" alt="Logo">
         </td>
         <td class="content-td">
           <div id="previewTitle" class="j-title">American Journal of Animal Health & Veterinary Medicine</div>
@@ -201,7 +247,46 @@
 <script>
   let activeLogoBuffer = null;
 
-  // Har baar naya logo upload karne ka binary reader
+  // 1. Example Parser Logic: Example paste karte hi automatic sab alag kar dega
+  function parseExample() {
+    const raw = document.getElementById('exampleInput').value.trim();
+    if (!raw) return;
+
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+
+    // Line 1 is usually Journal Name
+    if (lines.length > 0) {
+      document.getElementById('jName').value = lines[0];
+    }
+
+    // Search for ISSN in whole text
+    const issnMatch = raw.match(/ISSN[:\s]*([0-9]{4}-[0-9]{3}[0-9xX])/i) || raw.match(/ISSN[:\s]*([0-9\-]+)/i);
+    if (issnMatch) {
+      document.getElementById('jISSN').value = "ISSN: " + (issnMatch[1] || '').trim();
+    }
+
+    // Search for URL
+    const urlMatch = raw.match(/(https?:\/\/[^\s|]+)/i);
+    if (urlMatch) {
+      document.getElementById('jURL').value = urlMatch[1].trim();
+    }
+
+    // Search for Volume
+    const volMatch = raw.match(/Volume[:\s]*([0-9A-Za-z]+)/i);
+    if (volMatch) {
+      document.getElementById('jVol').value = "Volume: " + volMatch[1].trim();
+    }
+
+    // Search for Issue
+    const issueMatch = raw.match(/Issue[:\s]*([0-9A-Za-z]+)/i);
+    if (issueMatch) {
+      document.getElementById('jIssue').value = "Issue: " + issueMatch[1].trim();
+    }
+
+    refreshPreview();
+  }
+
+  // Logo file upload handler
   document.getElementById('userLogoFile').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -219,7 +304,7 @@
     }
   });
 
-  // Live typing preview
+  // Realtime Preview refresh
   function refreshPreview() {
     document.getElementById('previewTitle').innerText = document.getElementById('jName').value;
     document.getElementById('previewVolIssue').innerText = document.getElementById('jVol').value + ", " + document.getElementById('jIssue').value;
@@ -231,7 +316,7 @@
     document.getElementById(id).addEventListener('input', refreshPreview);
   });
 
-  // MS Word Generation Logic
+  // Generate MS Word Document
   async function generateCustomWordDoc() {
     const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, Header, Footer, AlignmentType, ImageRun, PageNumber } = docx;
 
@@ -242,7 +327,7 @@
 
     const headerCells = [];
 
-    // 1. Agar user ne is journal ka logo choose kiya hai:
+    // Left Cell: Uploaded Logo (2.09cm x 2.07cm) with vertical line separator
     if (activeLogoBuffer) {
       headerCells.push(new TableCell({
         width: { size: 14, type: WidthType.PERCENTAGE },
@@ -258,7 +343,7 @@
             children: [
               new ImageRun({
                 data: activeLogoBuffer,
-                transformation: { width: 79, height: 78 } // 2.09cm x 2.07cm
+                transformation: { width: 79, height: 78 }
               })
             ]
           })
@@ -266,7 +351,7 @@
       }));
     }
 
-    // 2. Text Content (Sirf bottom border, baaki NONE)
+    // Right Cell: Title (14.5pt Segoe UI Black) + Sub-details (9pt)
     headerCells.push(new TableCell({
       width: { size: activeLogoBuffer ? 86 : 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -283,7 +368,7 @@
               text: jName,
               bold: true,
               color: "548DD4",
-              size: 29, // 14.5 pt Segoe UI Black
+              size: 29, // 14.5 pt
               font: "Segoe UI Black"
             })
           ]
@@ -300,7 +385,7 @@
       ]
     }));
 
-    // Header Table (Strictly NO OUTER BOX)
+    // Header Table (Only bottom line, NO box)
     const headerTable = new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
@@ -314,7 +399,6 @@
       rows: [ new TableRow({ children: headerCells }) ]
     });
 
-    // Centered Page Number in Footer
     const footerParagraph = new Paragraph({
       alignment: AlignmentType.CENTER,
       children: [
@@ -322,7 +406,7 @@
       ]
     });
 
-    // Document with Page Setup: Top 3.34cm, Bottom/Left/Right 2.54cm
+    // Exact Page Setup: Top 3.34cm, Bottom/Left/Right 2.54cm
     const doc = new Document({
       sections: [{
         properties: {
