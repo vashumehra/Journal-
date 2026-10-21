@@ -5,30 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edwin Incorporation — Journal Template Updater</title>
 
-  <!-- JSZip & FileSaver for Word 2010 Compatible Processing -->
+  <!-- JSZip & FileSaver -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    
     body {
       margin: 0;
       padding: 30px 15px;
-      background: #081426;
+      background: linear-gradient(rgba(8, 20, 38, 0.88), rgba(8, 20, 38, 0.88)), url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      background-color: #081426;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
     }
+
     .card {
       width: 100%;
       max-width: 680px;
       background: #ffffff;
       border-radius: 14px;
       padding: 28px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.45);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
       border-top: 4px solid #f5a623;
     }
+
     .brand-header {
       display: flex;
       align-items: center;
@@ -37,11 +42,13 @@
       padding-bottom: 15px;
       margin-bottom: 20px;
     }
+
     .brand-logo {
       width: 58px;
       height: 58px;
       object-fit: contain;
     }
+
     .brand-title {
       margin: 0;
       color: #003366;
@@ -49,6 +56,7 @@
       font-weight: 800;
       line-height: 1.1;
     }
+
     .brand-sub {
       margin: 3px 0 0 0;
       color: #64748b;
@@ -56,7 +64,6 @@
       font-weight: 600;
     }
     
-    /* Drag & Drop Areas */
     .drop-zone {
       border: 2px dashed #3b82f6;
       border-radius: 8px;
@@ -67,16 +74,19 @@
       margin-bottom: 14px;
       transition: all 0.2s;
     }
+
     .drop-zone.active {
       border-color: #f5a623;
       background: #eff6ff;
     }
+
     .drop-zone p {
       margin: 0;
       font-size: 14px;
       color: #1e293b;
       font-weight: 700;
     }
+
     .drop-zone span {
       display: block;
       font-size: 11px;
@@ -90,6 +100,7 @@
       gap: 12px;
       margin-bottom: 12px;
     }
+
     .input-group label {
       display: block;
       font-size: 12px;
@@ -97,6 +108,7 @@
       margin-bottom: 4px;
       color: #334155;
     }
+
     .input-group input {
       width: 100%;
       padding: 9px 12px;
@@ -105,6 +117,7 @@
       font-size: 13.5px;
       outline: none;
     }
+
     .input-group input:focus { border-color: #003366; }
 
     .btn-update {
@@ -122,13 +135,14 @@
       margin-top: 15px;
       transition: background 0.2s;
     }
+
     .btn-update:hover { background: #002244; }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <!-- Edwin Incorporation Header Branding -->
+  <!-- Brand Header -->
   <div class="brand-header">
     <img src="logo.png" alt="Edwin Incorporation" class="brand-logo" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
     <div>
@@ -151,22 +165,22 @@
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
   </div>
 
-  <!-- 3. BASIC QUICK FIELDS -->
+  <!-- 3. BASIC FIELDS -->
   <div class="grid-row">
     <div class="input-group">
       <label>Naya Volume:</label>
-      <input type="text" id="valVol" placeholder="e.g. 02">
+      <input type="text" id="valVol" placeholder="e.g. 06">
     </div>
     <div class="input-group">
       <label>Naya Issue:</label>
-      <input type="text" id="valIssue" placeholder="e.g. 01">
+      <input type="text" id="valIssue" placeholder="e.g. 09">
     </div>
   </div>
 
   <div class="grid-row">
     <div class="input-group">
       <label>Naya ISSN (Optional):</label>
-      <input type="text" id="valISSN" placeholder="e.g. 3069-7840">
+      <input type="text" id="valISSN" placeholder="e.g. 3036-3069">
     </div>
     <div class="input-group">
       <label>Naya URL (Optional):</label>
@@ -239,13 +253,13 @@
         }
       }
 
-      // 2. Values
+      // 2. Form Values
       const vol = document.getElementById('valVol').value.trim();
       const issue = document.getElementById('valIssue').value.trim();
       const issn = document.getElementById('valISSN').value.trim();
       const url = document.getElementById('valURL').value.trim();
 
-      // Only update header XML files (Document.xml schemas remain untouched to prevent corruption)
+      // Only update header XML files
       const headers = [];
       zip.forEach((path) => {
         if (path.startsWith("word/header") && path.endsWith(".xml")) headers.push(path);
@@ -254,23 +268,37 @@
       for (let path of headers) {
         let text = await zip.file(path).async("string");
 
+        // Volume update
         if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
+        
+        // Issue update
         if (issue) text = text.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(issue)}`);
+        
+        // ISSN update
         if (issn) text = text.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${xmlSafe(issn)}`);
+        
+        // URL EXACT REPLACEMENT (Handles split XML tags)
         if (url) {
-          text = text.replace(/https?:\/\/[a-zA-Z0-9\.\/\-_?=&;#]+home/gi, xmlSafe(url));
-          text = text.replace(/https?:\/\/uscse\.com[^\s<"]*/gi, xmlSafe(url));
+          text = text.replace(/<w:t>https?:\/\/uscse\.com[^<]*<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
+          text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
+          text = text.replace(/<w:t>\s*home<\/w:t>/gi, `<w:t></w:t>`);
         }
 
         zip.file(path, text);
       }
 
-      // Update URL in rels safely
-      const rels = "word/_rels/header1.xml.rels";
-      if (zip.file(rels) && url) {
-        let relText = await zip.file(rels).async("string");
-        relText = relText.replace(/Target="https?:\/\/uscse\.com[^"]*"/gi, `Target="${xmlSafe(url)}"`);
-        zip.file(rels, relText);
+      // Hyperlink Relationships me Target URL ko replace karna
+      const relFiles = [];
+      zip.forEach((path) => {
+        if (path.startsWith("word/_rels/header") && path.endsWith(".rels")) relFiles.push(path);
+      });
+
+      for (let rPath of relFiles) {
+        if (url) {
+          let relText = await zip.file(rPath).async("string");
+          relText = relText.replace(/Target="https?:\/\/uscse\.com[^"]*"/gi, `Target="${xmlSafe(url)}"`);
+          zip.file(rPath, relText);
+        }
       }
 
       const outputBlob = await zip.generateAsync({
@@ -279,23 +307,13 @@
         compression: "DEFLATE"
       });
 
-      saveAs(outputBlob, "Edwin_Updated_Paper.docx");
+      saveAs(outputBlob, "Updated_Journal_Paper.docx");
 
     } catch (e) {
       alert("Error: " + e.message);
     }
   }
 </script>
-body {
-  margin: 0;
-  padding: 30px 15px;
-  /* Aapki background image ka path */
-  background: linear-gradient(rgba(8, 20, 38, 0.85), rgba(8, 20, 38, 0.85)), url('background.jpg') no-repeat center center fixed;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+
 </body>
 </html>
