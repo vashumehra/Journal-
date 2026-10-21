@@ -10,7 +10,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
     
     body {
       margin: 0;
@@ -277,9 +280,12 @@
         // ISSN update
         if (issn) text = text.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${xmlSafe(issn)}`);
         
-        // URL EXACT REPLACEMENT (Handles split XML tags)
+        // Comprehensive URL replacement inside Header XML
         if (url) {
-          text = text.replace(/<w:t>https?:\/\/uscse\.com[^<]*<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
+          text = text.replace(/(<w:hyperlink[^>]*>[\s\S]*?<w:t[^>]*>)(https?:\/\/[^<]+)(<\/w:t>[\s\S]*?<\/w:hyperlink>)/gi, (match, prefix, oldUrl, suffix) => {
+            return prefix + xmlSafe(url) + suffix;
+          });
+          text = text.replace(/<w:t[^>]*>https?:\/\/[^<]+<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
           text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t>\s*home<\/w:t>/gi, `<w:t></w:t>`);
         }
@@ -296,7 +302,7 @@
       for (let rPath of relFiles) {
         if (url) {
           let relText = await zip.file(rPath).async("string");
-          relText = relText.replace(/Target="https?:\/\/uscse\.com[^"]*"/gi, `Target="${xmlSafe(url)}"`);
+          relText = relText.replace(/Target="https?:\/\/[^"]+"/gi, `Target="${xmlSafe(url)}"`);
           zip.file(rPath, relText);
         }
       }
