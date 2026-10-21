@@ -3,367 +3,362 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Research Paper Header & Footer Generator</title>
-  <style>
-    :root {
-      --primary-color: #0b1a30;
-      --accent-color: #f5a623;
-      --border-color: #cbd5e1;
-    }
+  <title>Journal Header & Footer to MS Word (.docx)</title>
+  
+  <!-- Docx.js library for direct Word file creation -->
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
+  <style>
     * {
       box-sizing: border-box;
-      font-family: 'Times New Roman', Times, serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-
     body {
       margin: 0;
       padding: 20px;
-      background-color: #f1f5f9;
+      background-color: #0f172a;
+      color: #334155;
       display: flex;
-      gap: 20px;
+      justify-content: center;
     }
-
-    /* Left Control Panel */
-    .controls-panel {
-      width: 380px;
+    .main-box {
+      width: 100%;
+      max-width: 900px;
       background: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      height: fit-content;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
-
-    .controls-panel h2 {
+    h2 {
       margin-top: 0;
-      font-size: 20px;
-      color: var(--primary-color);
-      border-bottom: 2px solid var(--accent-color);
-      padding-bottom: 8px;
+      color: #0b1a30;
+      border-bottom: 2px solid #f5a623;
+      padding-bottom: 10px;
     }
-
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
     .form-group {
       margin-bottom: 12px;
     }
-
-    .form-group label {
+    label {
       display: block;
       font-size: 13px;
-      font-weight: bold;
+      font-weight: 700;
       margin-bottom: 4px;
-      color: #334155;
+      color: #1e293b;
     }
-
-    .form-group input, .form-group textarea {
+    input, textarea {
       width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border-color);
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      font-size: 14px;
+      font-size: 13.5px;
       outline: none;
     }
-
-    .form-group input:focus {
-      border-color: var(--accent-color);
+    input:focus, textarea:focus {
+      border-color: #f5a623;
     }
-
-    .btn-action {
+    .btn-download {
       width: 100%;
-      padding: 12px;
-      background-color: #003366;
-      color: white;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
+      padding: 14px;
+      background: #003366;
+      color: #ffffff;
+      font-weight: 800;
       font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 15px;
+      transition: background 0.2s;
     }
-
-    .btn-action:hover {
-      background-color: #002244;
+    .btn-download:hover {
+      background: #002244;
     }
-
-    /* Right Preview Section (A4 simulation) */
-    .preview-container {
-      flex: 1;
+    .preview-box {
+      margin-top: 25px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Times New Roman', serif;
+    }
+    .preview-header {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .a4-page {
-      width: 210mm;
-      min-height: 297mm;
-      padding: 20mm 20mm 20mm 20mm;
-      background: white;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      position: relative;
-      display: flex;
-      flex-direction: column;
       justify-content: space-between;
-    }
-
-    /* HEADER STYLES */
-    .paper-header {
-      border-bottom: 1.5px solid #000000;
+      border-bottom: 1.5px solid #000;
       padding-bottom: 8px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .header-logo {
-      width: 65px;
-      height: 65px;
-      object-fit: contain;
-      display: none;
-    }
-
-    .journal-details {
-      font-size: 11px;
-      line-height: 1.35;
-      color: #111;
-    }
-
-    .journal-title {
-      font-size: 14px;
-      font-weight: bold;
-      text-transform: uppercase;
-      color: #002060;
-    }
-
-    .header-right {
-      text-align: right;
-      font-size: 11px;
-      line-height: 1.4;
-      color: #222;
-    }
-
-    .header-right .vol-issue {
-      font-weight: bold;
       font-size: 12px;
     }
-
-    /* PAPER BODY (Dummy text for demo) */
-    .paper-body {
-      flex: 1;
-      color: #475569;
-      font-size: 13px;
-      line-height: 1.6;
-      border: 1px dashed #cbd5e1;
-      padding: 20px;
-      border-radius: 6px;
-      background: #f8fafc;
-      text-align: center;
-    }
-
-    /* FOOTER STYLES */
-    .paper-footer {
-      border-top: 1.5px solid #000000;
-      padding-top: 8px;
-      margin-top: 20px;
+    .preview-footer {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-size: 10.5px;
-      color: #333;
-    }
-
-    .footer-left {
-      max-width: 75%;
-      line-height: 1.3;
-    }
-
-    .footer-right {
-      font-weight: bold;
-    }
-
-    /* Print Styles */
-    @media print {
-      body {
-        background: none;
-        padding: 0;
-      }
-      .controls-panel {
-        display: none;
-      }
-      .preview-container {
-        width: 100%;
-      }
-      .a4-page {
-        box-shadow: none;
-        margin: 0;
-        width: 100%;
-        min-height: 100vh;
-        padding: 15mm;
-      }
-      .paper-body {
-        border: none;
-        background: transparent;
-      }
+      border-top: 1.5px solid #000;
+      padding-top: 8px;
+      margin-top: 50px;
+      font-size: 11px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Controls Panel -->
-  <div class="controls-panel">
-    <h2>Paper Format Settings</h2>
+<div class="main-box">
+  <h2>Research Paper MS Word (.docx) Generator</h2>
 
-    <div class="form-group">
-      <label>Upload Journal Logo:</label>
-      <input type="file" id="logoUpload" accept="image/*">
-    </div>
-
-    <div class="form-group">
-      <label>Journal Name / Title:</label>
-      <input type="text" id="inputJournalName" value="Advance International Journal of Research and Innovation">
-    </div>
-
-    <div class="form-group">
-      <label>Journal Short Code / Subtitle:</label>
-      <input type="text" id="inputSubTitle" value="AIJRI | Peer Reviewed & Refereed Journal">
-    </div>
-
-    <div class="form-group">
-      <label>ISSN Number:</label>
-      <input type="text" id="inputISSN" value="ISSN: 2583-9999">
-    </div>
-
-    <div class="form-group" style="display: flex; gap: 8px;">
-      <div style="flex: 1;">
-        <label>Volume:</label>
-        <input type="text" id="inputVolume" value="Volume 03">
+  <div class="grid-2">
+    <!-- Left Column -->
+    <div>
+      <div class="form-group">
+        <label>Upload Journal Logo (Image):</label>
+        <input type="file" id="logoInput" accept="image/*">
       </div>
-      <div style="flex: 1;">
-        <label>Issue:</label>
-        <input type="text" id="inputIssue" value="Issue 05">
+
+      <div class="form-group">
+        <label>Journal Full Name:</label>
+        <input type="text" id="jName" value="American Journal of Animal Health & Veterinary Medicine">
+      </div>
+
+      <div class="form-group">
+        <label>ISSN Number:</label>
+        <input type="text" id="jISSN" value="ISSN: 3069-7840">
+      </div>
+
+      <div class="form-group">
+        <label>Journal Website / DOI URL:</label>
+        <input type="text" id="jWeb" value="https://uscse.com/uscse/index.php/AJAHVM/home">
       </div>
     </div>
 
-    <div class="form-group" style="display: flex; gap: 8px;">
-      <div style="flex: 1;">
-        <label>Month & Year:</label>
-        <input type="text" id="inputDate" value="October 2026">
+    <!-- Right Column -->
+    <div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Volume:</label>
+          <input type="text" id="jVol" value="Volume 01">
+        </div>
+        <div class="form-group">
+          <label>Issue:</label>
+          <input type="text" id="jIssue" value="Issue 01">
+        </div>
       </div>
-      <div style="flex: 1;">
+
+      <div class="form-group">
         <label>Page Range:</label>
-        <input type="text" id="inputPage" value="pp. 101-108">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Journal Website / DOI link:</label>
-      <input type="text" id="inputWebsite" value="www.journal-aijri.com | DOI: 10.5555/aijri.2026">
-    </div>
-
-    <div class="form-group">
-      <label>Footer Copyright Note:</label>
-      <textarea id="inputFooterNote" rows="2">© 2026 AIJRI | Published under Creative Commons Attribution 4.0 International License</textarea>
-    </div>
-
-    <button class="btn-action" onclick="window.print()">Print / Save as PDF</button>
-  </div>
-
-  <!-- A4 Preview Panel -->
-  <div class="preview-container">
-    <div class="a4-page">
-      
-      <!-- HEADER -->
-      <div class="paper-header">
-        <div class="header-left">
-          <img id="displayLogo" class="header-logo" alt="Logo">
-          <div class="journal-details">
-            <div id="dispJournalName" class="journal-title">Advance International Journal of Research and Innovation</div>
-            <div id="dispSubTitle" style="font-style: italic;">AIJRI | Peer Reviewed & Refereed Journal</div>
-            <div id="dispISSN">ISSN: 2583-9999</div>
-            <div id="dispWebsite" style="color: #0044cc;">www.journal-aijri.com | DOI: 10.5555/aijri.2026</div>
-          </div>
-        </div>
-
-        <div class="header-right">
-          <div id="dispVolIssue" class="vol-issue">Volume 03, Issue 05</div>
-          <div id="dispDate">October 2026</div>
-          <div id="dispPage">pp. 101-108</div>
-        </div>
+        <input type="text" id="jPage" value="pp. 101-108">
       </div>
 
-      <!-- BODY PLACEHOLDER -->
-      <div class="paper-body">
-        <h3 style="margin-top: 50px;">Aapka Research Paper Ka Title Yahan Aayega</h3>
-        <p style="font-style: italic;">Author Name, Designation, Institute, Email ID</p>
-        <p style="margin-top: 40px; max-width: 80%; margin-left: auto; margin-right: auto;">
-          Yeh preview area hai. Jab aap "Print / Save as PDF" karenge, tab sirf upar ka Header aur neeche ka Footer standard margin ke sath page par set ho jayega.
-        </p>
+      <div class="form-group">
+        <label>Footer Citation / Copyright Note:</label>
+        <textarea id="jFooter" rows="3">All Rights Reserved | Published by American Journal of Animal Health & Veterinary Medicine</textarea>
       </div>
-
-      <!-- FOOTER -->
-      <div class="paper-footer">
-        <div id="dispFooterNote" class="footer-left">
-          © 2026 AIJRI | Published under Creative Commons Attribution 4.0 International License
-        </div>
-        <div class="footer-right">
-          Page <span id="dispPageNum">1</span>
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <!-- Realtime Update JavaScript -->
-  <script>
-    const bindInput = (inputId, displayId) => {
-      const input = document.getElementById(inputId);
-      const display = document.getElementById(displayId);
-      input.addEventListener('input', () => {
-        display.textContent = input.value;
-      });
-    };
+  <!-- Realtime Preview -->
+  <div class="preview-box">
+    <div style="font-size: 11px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; font-weight: bold;">Screen Preview:</div>
+    <div class="preview-header">
+      <div style="line-height: 1.3;">
+        <b id="pName" style="color: #002060;">American Journal of Animal Health & Veterinary Medicine</b><br>
+        <span id="pISSN">ISSN: 3069-7840</span><br>
+        <span id="pWeb" style="color: #0044cc;">https://uscse.com/uscse/index.php/AJAHVM/home</span>
+      </div>
+      <div style="text-align: right; line-height: 1.4;">
+        <b id="pVolIssue">Volume 01, Issue 01</b><br>
+        <span id="pPage">pp. 101-108</span>
+      </div>
+    </div>
 
-    // Binding text fields
-    bindInput('inputJournalName', 'dispJournalName');
-    bindInput('inputSubTitle', 'dispSubTitle');
-    bindInput('inputISSN', 'dispISSN');
-    bindInput('inputWebsite', 'dispWebsite');
-    bindInput('inputDate', 'dispDate');
-    bindInput('inputPage', 'dispPage');
-    bindInput('inputFooterNote', 'dispFooterNote');
+    <div style="text-align: center; color: #94a3b8; padding: 25px 0;">
+      [Aapka MS Word document is Header aur Footer ke sath create hoga]
+    </div>
 
-    // Volume & Issue Update Logic
-    const volInput = document.getElementById('inputVolume');
-    const issueInput = document.getElementById('inputIssue');
-    const dispVolIssue = document.getElementById('dispVolIssue');
+    <div class="preview-footer">
+      <div id="pFooter">All Rights Reserved | Published by American Journal of Animal Health & Veterinary Medicine</div>
+      <div>Page <b>1</b></div>
+    </div>
+  </div>
 
-    const updateVolIssue = () => {
-      dispVolIssue.textContent = `${volInput.value}, ${issueInput.value}`;
-    };
-    volInput.addEventListener('input', updateVolIssue);
-    issueInput.addEventListener('input', updateVolIssue);
+  <!-- Action Button -->
+  <button class="btn-download" onclick="generateWordDoc()">Download MS Word File (.docx)</button>
+</div>
 
-    // Image Upload & Preview Logic
-    const logoUpload = document.getElementById('logoUpload');
-    const displayLogo = document.getElementById('displayLogo');
+<script>
+  let uploadedLogoBase64 = null;
 
-    logoUpload.addEventListener('change', function() {
-      const file = this.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          displayLogo.src = e.target.result;
-          displayLogo.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      }
+  // Image Upload Logic
+  document.getElementById('logoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        uploadedLogoBase64 = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Realtime Live Preview Updates
+  function updatePreview() {
+    document.getElementById('pName').innerText = document.getElementById('jName').value;
+    document.getElementById('pISSN').innerText = document.getElementById('jISSN').value;
+    document.getElementById('pWeb').innerText = document.getElementById('jWeb').value;
+    document.getElementById('pVolIssue').innerText = document.getElementById('jVol').value + ", " + document.getElementById('jIssue').value;
+    document.getElementById('pPage').innerText = document.getElementById('jPage').value;
+    document.getElementById('pFooter').innerText = document.getElementById('jFooter').value;
+  }
+
+  ['jName', 'jISSN', 'jWeb', 'jVol', 'jIssue', 'jPage', 'jFooter'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updatePreview);
+  });
+
+  // MS Word (.docx) Generation Function
+  async function generateWordDoc() {
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, BorderStyle, Header, Footer, PageNumber } = docx;
+
+    const jName = document.getElementById('jName').value;
+    const jISSN = document.getElementById('jISSN').value;
+    const jWeb = document.getElementById('jWeb').value;
+    const volIssue = document.getElementById('jVol').value + ", " + document.getElementById('jIssue').value;
+    const jPage = document.getElementById('jPage').value;
+    const jFooter = document.getElementById('jFooter').value;
+
+    // Header Table (2 columns: Left details, Right Vol/Issue)
+    const headerTable = new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.NONE },
+        left: { style: BorderStyle.NONE },
+        right: { style: BorderStyle.NONE },
+        bottom: { style: BorderStyle.SINGLE, size: 12, color: "000000" },
+        insideVertical: { style: BorderStyle.NONE },
+        insideHorizontal: { style: BorderStyle.NONE },
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 65, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  children: [new TextRun({ text: jName, bold: true, color: "002060", size: 20, font: "Times New Roman" })]
+                }),
+                new Paragraph({
+                  children: [new TextRun({ text: jISSN, size: 18, font: "Times New Roman" })]
+                }),
+                new Paragraph({
+                  children: [new TextRun({ text: jWeb, color: "0044CC", size: 18, font: "Times New Roman" })]
+                }),
+              ],
+            }),
+            new TableCell({
+              width: { size: 35, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: docx.AlignmentType.RIGHT,
+                  children: [new TextRun({ text: volIssue, bold: true, size: 20, font: "Times New Roman" })]
+                }),
+                new Paragraph({
+                  alignment: docx.AlignmentType.RIGHT,
+                  children: [new TextRun({ text: jPage, size: 18, font: "Times New Roman" })]
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
     });
-  </script>
+
+    // Footer Table (Left Citation, Right Page Number)
+    const footerTable = new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.SINGLE, size: 12, color: "000000" },
+        left: { style: BorderStyle.NONE },
+        right: { style: BorderStyle.NONE },
+        bottom: { style: BorderStyle.NONE },
+        insideVertical: { style: BorderStyle.NONE },
+        insideHorizontal: { style: BorderStyle.NONE },
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 80, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  children: [new TextRun({ text: jFooter, size: 17, font: "Times New Roman" })]
+                }),
+              ],
+            }),
+            new TableCell({
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: docx.AlignmentType.RIGHT,
+                  children: [
+                    new TextRun({ text: "Page ", size: 18, font: "Times New Roman" }),
+                    new TextRun({ children: [PageNumber.CURRENT], font: "Times New Roman", size: 18, bold: true }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+
+    // Create Document Object
+    const doc = new Document({
+      sections: [{
+        properties: {
+          page: {
+            margin: { top: 720, right: 1000, bottom: 720, left: 1000 }
+          }
+        },
+        headers: {
+          default: new Header({ children: [headerTable] }),
+        },
+        footers: {
+          default: new Footer({ children: [footerTable] }),
+        },
+        children: [
+          new Paragraph({
+            spacing: { before: 400 },
+            alignment: docx.AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: "Research Paper Title Goes Here", bold: true, size: 32, font: "Times New Roman" })
+            ]
+          }),
+          new Paragraph({
+            spacing: { before: 200 },
+            alignment: docx.AlignmentType.CENTER,
+            children: [
+              new TextRun({ text: "Author Name, Designation, Institute, Email ID", italics: true, size: 22, font: "Times New Roman" })
+            ]
+          }),
+          new Paragraph({
+            spacing: { before: 400 },
+            children: [
+              new TextRun({ text: "Abstract - ", bold: true, size: 20, font: "Times New Roman" }),
+              new TextRun({ text: "Yahan se aap apna paper MS Word me direct likhna ya paste karna shuru kar sakte hain. Header aur Footer document me automatically har page par standard format me print honge.", size: 20, font: "Times New Roman" })
+            ]
+          }),
+        ],
+      }],
+    });
+
+    // Generate and Download .docx File
+    Packer.toBlob(doc).then(blob => {
+      saveAs(blob, (jName.substring(0, 15) || "Journal_Paper") + "_Format.docx");
+    });
+  }
+</script>
+
 </body>
 </html>
