@@ -131,7 +131,7 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     }
 
-    .input-group input, .input-group select, .input-group textarea {
+    .input-group input, .input-group textarea {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -142,7 +142,7 @@
       color: #0f172a;
     }
 
-    .input-group input:focus, .input-group select:focus, .input-group textarea:focus { 
+    .input-group input:focus, .input-group textarea:focus { 
       border-color: #38bdf8;
       box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
     }
@@ -243,47 +243,20 @@
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
   </div>
 
-  <!-- 3. AI DESIGN ASSISTANT (GEMINI INTEGRATED) -->
+  <!-- 3. AI DESIGN ASSISTANT -->
   <div class="ai-box">
     <label>✨ AI Design Assistant (Hindi ya Hinglish me design batayein):</label>
-    <textarea id="valPrompt" placeholder="e.g. Title ka font Arial Black aur color dark red kar do, Volume text ko italic karo..."></textarea>
+    <textarea id="valPrompt" placeholder="e.g. Title ka font Times New Roman aur color dark blue kar do, text ko bold ya italic karo..."></textarea>
     <div class="api-row">
       <input type="password" id="valApiKey" placeholder="Google Gemini API Key daalein (Optional)" onchange="localStorage.setItem('gemini_api_key', this.value)">
     </div>
   </div>
 
-  <!-- 4. MANUAL TITLE & DESIGN CONTROLS -->
+  <!-- 4. JOURNAL TITLE -->
   <div class="full-row">
     <div class="input-group">
       <label>NEW Journal Title (Optional):</label>
       <input type="text" id="valTitle" placeholder="e.g. European Journal of Sustainable Agriculture">
-    </div>
-  </div>
-
-  <div class="grid-row">
-    <div class="input-group">
-      <label>Title Font Family:</label>
-      <select id="valFont">
-        <option value="">Default (Jo template me hai)</option>
-        <option value="Segoe UI Black">Segoe UI Black</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Arial">Arial</option>
-        <option value="Arial Black">Arial Black</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Calibri">Calibri</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <label>Title Color:</label>
-      <select id="valColor">
-        <option value="">Default (Jo template me hai)</option>
-        <option value="1F497D">Navy Blue (#1F497D)</option>
-        <option value="003366">Deep Classic Blue (#003366)</option>
-        <option value="C9A227">Royal Gold (#C9A227)</option>
-        <option value="B8860B">Dark Goldenrod (#B8860B)</option>
-        <option value="000000">Solid Black (#000000)</option>
-        <option value="8B0000">Dark Red (#8B0000)</option>
-      </select>
     </div>
   </div>
 
@@ -390,7 +363,7 @@ Do NOT include backticks or markdown, return pure JSON.`;
     }
   }
 
-  // Fallback Rule-based parser
+  // Fallback Rule-based parser if API key is not entered
   function parseAIPromptFallback(prompt) {
     const p = prompt.toLowerCase();
     let font = "";
@@ -398,7 +371,7 @@ Do NOT include backticks or markdown, return pure JSON.`;
     let italic = p.includes("italic") || p.includes("tircha");
     let bold = p.includes("bold") || p.includes("mota");
 
-    if (p.includes("times")) font = "Times New Roman";
+    if (p.includes("times") || p.includes("times new roman")) font = "Times New Roman";
     else if (p.includes("arial black")) font = "Arial Black";
     else if (p.includes("arial")) font = "Arial";
     else if (p.includes("segoe")) font = "Segoe UI Black";
@@ -458,8 +431,8 @@ Do NOT include backticks or markdown, return pure JSON.`;
       const issn = document.getElementById('valISSN').value.trim();
       const url = document.getElementById('valURL').value.trim();
 
-      const targetFont = document.getElementById('valFont').value || (aiResult ? aiResult.font : "");
-      const targetColor = document.getElementById('valColor').value || (aiResult ? aiResult.color : "");
+      const targetFont = aiResult ? aiResult.font : "";
+      const targetColor = aiResult ? aiResult.color : "";
 
       // HEADER & FOOTER SABHI XML FILES SCAN KARNA
       const targetXmls = [];
