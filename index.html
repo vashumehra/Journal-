@@ -175,21 +175,6 @@
       border: 1px solid #94a3b8;
     }
 
-    .api-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .api-row input {
-      flex: 1;
-      padding: 7px 10px;
-      font-size: 12px;
-      background: #ffffff;
-      border: 1px solid #94a3b8;
-      border-radius: 6px;
-    }
-
     .btn-update {
       width: 100%;
       padding: 14px;
@@ -247,10 +232,7 @@
   <!-- 3. AI DESIGN ASSISTANT -->
   <div class="ai-box">
     <label>✨ AI Design Assistant (Hindi ya Hinglish me design batayein):</label>
-    <textarea id="valPrompt" placeholder="e.g. Title ka font Arial Black aur color yellow kar do, text ko italic karo..."></textarea>
-    <div class="api-row">
-      <input type="password" id="valApiKey" placeholder="Google Gemini API Key daalein (Optional)"[cite: 13] oninput="localStorage.setItem('gemini_api_key', this.value.trim())">
-    </div>
+    <textarea id="valPrompt" placeholder="e.g. Title red kar dena or title font size 16 kar dena, font Arial Black karo..."></textarea>
   </div>
 
   <!-- 4. JOURNAL TITLE -->
@@ -292,9 +274,6 @@
   let docBuffer = null;
   let logoBuffer = null;
 
-  const savedKey = localStorage.getItem('gemini_api_key');
-  if (savedKey) document.getElementById('valApiKey').value = savedKey;
-
   function setupDrop(dropId, inputId, statusId, type) {
     const dropZone = document.getElementById(dropId);
     const input = document.getElementById(inputId);
@@ -334,7 +313,7 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // Smart Parser for Hindi & Hinglish prompts
+  // Smart Parser for Font, Color, Size, Italic & Bold
   function parseAIPromptSmart(prompt) {
     const p = prompt.toLowerCase();
     
@@ -347,7 +326,7 @@
     else if (p.includes("georgia")) font = "Georgia";
     else if (p.includes("calibri")) font = "Calibri";
 
-    // 2. Remove font words so "Arial Black" does NOT trigger black color!
+    // 2. Remove font names so "Arial Black" doesn't falsely trigger black color
     let colorSearch = p.replace("arial black", "").replace("segoe ui black", "");
 
     // 3. Color detection
@@ -357,7 +336,7 @@
     } else if (colorSearch.includes("gold") || colorSearch.includes("golden") || colorSearch.includes("sonehra")) {
       color = "C9A227";
     } else if (colorSearch.includes("red") || colorSearch.includes("lal")) {
-      color = "C00000"; // Standard Dark Red
+      color = "C00000"; // Standard Red
     } else if (colorSearch.includes("navy") || colorSearch.includes("dark blue") || colorSearch.includes("gehra neela")) {
       color = "1F497D";
     } else if (colorSearch.includes("blue") || colorSearch.includes("neela")) {
@@ -368,10 +347,20 @@
       color = "000000";
     }
 
+    // 4. Font Size detection (e.g. "size 16", "font size 16", "16 pt")
+    let halfPoints = null;
+    let sizeMatch = p.match(/(?:font\s*)?size[:\s]*([0-9]{1,2})/i) || p.match(/([0-9]{1,2})\s*(?:pt|point)/i);
+    if (sizeMatch && sizeMatch[1]) {
+      let pt = parseInt(sizeMatch[1]);
+      if (pt > 6 && pt < 72) {
+        halfPoints = pt * 2; // Word XML uses half-points (16pt = 32)
+      }
+    }
+
     let italic = p.includes("italic") || p.includes("tircha");
     let bold = p.includes("bold") || p.includes("mota");
 
-    return { font, color, italic, bold };
+    return { font, color, halfPoints, italic, bold };
   }
 
   async function processOldDocx() {
@@ -401,7 +390,7 @@
 
       // 2. Parse Prompt
       const promptText = document.getElementById('valPrompt').value.trim();
-      let aiResult = { font: "", color: "", italic: false, bold: false };
+      let aiResult = { font: "", color: "", halfPoints: null, italic: false, bold: false };
       
       if (promptText) {
         aiResult = parseAIPromptSmart(promptText);
@@ -415,6 +404,7 @@
 
       const targetFont = aiResult.font;
       const targetColor = aiResult.color;
+      const targetHalfPoints = aiResult.halfPoints;
       const makeItalic = aiResult.italic;
       const makeBold = aiResult.bold;
 
@@ -457,6 +447,12 @@
               // Color replace (Word ka themeColor hatakar direct color apply karega)
               if (targetColor) {
                 modifiedBlock = modifiedBlock.replace(/<w:color\s+[^>]*\/>/gi, `<w:color w:val="${targetColor}"/>`);
+              }
+
+              // Font Size replace (16pt -> 32 half-points)
+              if (targetHalfPoints) {
+                modifiedBlock = modifiedBlock.replace(/<w:sz\s+[^>]*\/>/gi, `<w:sz w:val="${targetHalfPoints}"/>`);
+                modifiedBlock = modifiedBlock.replace(/<w:szCs\s+[^>]*\/>/gi, `<w:szCs w:val="${targetHalfPoints}"/>`);
               }
 
               // Italic
