@@ -167,12 +167,27 @@
 
     .ai-box textarea {
       width: 100%;
-      height: 60px;
+      height: 65px;
       resize: vertical;
       font-size: 13px;
       border-radius: 6px;
       padding: 8px 10px;
       border: 1px solid #94a3b8;
+    }
+
+    .api-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .api-row input {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 12px;
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
     }
 
     .btn-update {
@@ -193,6 +208,13 @@
     }
 
     .btn-update:hover { background: #0369a1; }
+    .status-msg {
+      margin-top: 10px;
+      font-size: 12px;
+      text-align: center;
+      color: #38bdf8;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -221,10 +243,13 @@
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
   </div>
 
-  <!-- 3. AI DESIGN ASSISTANT (HINDI / ENGLISH PROMPT) -->
+  <!-- 3. AI DESIGN ASSISTANT (GEMINI INTEGRATED) -->
   <div class="ai-box">
-    <label>✨ AI Design Assistant (Hindi ya English me bol/likh sakte hain):</label>
-    <textarea id="valPrompt" placeholder="e.g. Font Arial Black kar do, Color dark blue karo, border golden kar do..."></textarea>
+    <label>✨ AI Design Assistant (Hindi ya Hinglish me design batayein):</label>
+    <textarea id="valPrompt" placeholder="e.g. Title ka font Arial Black aur color dark red kar do, Volume text ko italic karo..."></textarea>
+    <div class="api-row">
+      <input type="password" id="valApiKey" placeholder="Google Gemini API Key daalein (Optional)" onchange="localStorage.setItem('gemini_api_key', this.value)">
+    </div>
   </div>
 
   <!-- 4. MANUAL TITLE & DESIGN CONTROLS -->
@@ -285,12 +310,17 @@
     </div>
   </div>
 
-  <button class="btn-update" onclick="processOldDocx()">Generate Updated MS Word (.docx)</button>
+  <button class="btn-update" id="genBtn" onclick="processOldDocx()">Generate Updated MS Word (.docx)</button>
+  <div class="status-msg" id="statusMsg"></div>
 </div>
 
 <script>
   let docBuffer = null;
   let logoBuffer = null;
+
+  // Restore API Key from localStorage
+  const savedKey = localStorage.getItem('gemini_api_key');
+  if (savedKey) document.getElementById('valApiKey').value = savedKey;
 
   function setupDrop(dropId, inputId, statusId, type) {
     const dropZone = document.getElementById(dropId);
@@ -331,28 +361,57 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // AI Prompt Parser (Hindi & English natural language understanding)
-  function parseAIPrompt(prompt) {
+  // Real AI Processing via Google Gemini API
+  async function callGeminiForDesign(prompt, apiKey) {
+    if (!prompt.trim() || !apiKey.trim()) return null;
+
+    const systemPrompt = `You are a Word document XML styling assistant. Analyze the user's Hindi or English instructions for Word Header design.
+Return ONLY a valid JSON object with keys:
+"font": (one of "Segoe UI Black", "Times New Roman", "Arial", "Arial Black", "Georgia", "Calibri", or null),
+"color": (6-digit hex color without #, e.g. "1F497D", "003366", "8B0000", "C9A227", "000000", or null),
+"italic": (true/false),
+"bold": (true/false).
+Do NOT include backticks or markdown, return pure JSON.`;
+
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `${systemPrompt}\n\nUser Instruction: "${prompt}"` }] }]
+        })
+      });
+      const data = await resp.json();
+      const txt = data.candidates[0].content.parts[0].text.trim().replace(/^```json/, '').replace(/```$/, '').trim();
+      return JSON.parse(txt);
+    } catch (e) {
+      console.warn("AI API Error, fallback to local parsing:", e);
+      return null;
+    }
+  }
+
+  // Fallback Rule-based parser
+  function parseAIPromptFallback(prompt) {
     const p = prompt.toLowerCase();
-    let detectedFont = "";
-    let detectedColor = "";
+    let font = "";
+    let color = "";
+    let italic = p.includes("italic") || p.includes("tircha");
+    let bold = p.includes("bold") || p.includes("mota");
 
-    // Font parsing
-    if (p.includes("times") || p.includes("times new roman")) detectedFont = "Times New Roman";
-    else if (p.includes("arial black")) detectedFont = "Arial Black";
-    else if (p.includes("arial")) detectedFont = "Arial";
-    else if (p.includes("segoe") || p.includes("segoe ui")) detectedFont = "Segoe UI Black";
-    else if (p.includes("georgia")) detectedFont = "Georgia";
-    else if (p.includes("calibri")) detectedFont = "Calibri";
+    if (p.includes("times")) font = "Times New Roman";
+    else if (p.includes("arial black")) font = "Arial Black";
+    else if (p.includes("arial")) font = "Arial";
+    else if (p.includes("segoe")) font = "Segoe UI Black";
+    else if (p.includes("georgia")) font = "Georgia";
+    else if (p.includes("calibri")) font = "Calibri";
 
-    // Color parsing
-    if (p.includes("gold") || p.includes("golden") || p.includes("sonehra") || p.includes("peela")) detectedColor = "C9A227";
-    else if (p.includes("navy") || p.includes("dark blue") || p.includes("gehra neela")) detectedColor = "1F497D";
-    else if (p.includes("blue") || p.includes("neela")) detectedColor = "003366";
-    else if (p.includes("black") || p.includes("kala")) detectedColor = "000000";
-    else if (p.includes("red") || p.includes("lal")) detectedColor = "8B0000";
+    if (p.includes("gold") || p.includes("golden") || p.includes("sonehra")) color = "C9A227";
+    else if (p.includes("navy") || p.includes("dark blue")) color = "1F497D";
+    else if (p.includes("blue") || p.includes("neela")) color = "003366";
+    else if (p.includes("black") || p.includes("kala")) color = "000000";
+    else if (p.includes("red") || p.includes("lal")) color = "8B0000";
 
-    return { font: detectedFont, color: detectedColor };
+    return { font, color, italic, bold };
   }
 
   async function processOldDocx() {
@@ -360,6 +419,12 @@
       alert("Kripya pehle apni purani template file (.docx) drop ya select karein!");
       return;
     }
+
+    const btn = document.getElementById('genBtn');
+    const statusMsg = document.getElementById('statusMsg');
+    btn.disabled = true;
+    btn.innerText = "Processing Document...";
+    statusMsg.innerText = "";
 
     try {
       const zip = await JSZip.loadAsync(docBuffer);
@@ -374,9 +439,18 @@
         }
       }
 
-      // 2. Form Values
+      // 2. Form Values & AI Parsing
       const promptText = document.getElementById('valPrompt').value.trim();
-      const aiStyles = parseAIPrompt(promptText);
+      const apiKey = document.getElementById('valApiKey').value.trim();
+      
+      let aiResult = null;
+      if (promptText && apiKey) {
+        statusMsg.innerText = "🤖 AI se styling rules process ho rahe hain...";
+        aiResult = await callGeminiForDesign(promptText, apiKey);
+      }
+      if (!aiResult && promptText) {
+        aiResult = parseAIPromptFallback(promptText);
+      }
 
       const title = document.getElementById('valTitle').value.trim();
       const vol = document.getElementById('valVol').value.trim();
@@ -384,9 +458,8 @@
       const issn = document.getElementById('valISSN').value.trim();
       const url = document.getElementById('valURL').value.trim();
 
-      // Style priority: Manual dropdowns > AI Prompt detections
-      const targetFont = document.getElementById('valFont').value || aiStyles.font;
-      const targetColor = document.getElementById('valColor').value || aiStyles.color;
+      const targetFont = document.getElementById('valFont').value || (aiResult ? aiResult.font : "");
+      const targetColor = document.getElementById('valColor').value || (aiResult ? aiResult.color : "");
 
       // HEADER & FOOTER SABHI XML FILES SCAN KARNA
       const targetXmls = [];
@@ -402,11 +475,9 @@
         // A. JOURNAL TITLE & STYLE REPLACEMENT
         if (path.includes("header")) {
           text = text.replace(/<w:txbxContent>[\s\S]*?<\/w:txbxContent>/gi, (tbBlock) => {
-            // Title box does NOT contain Volume, ISSN, or URLs
             if (!/Volume|ISSN|http|www/i.test(tbBlock)) {
               let modifiedBlock = tbBlock;
               
-              // Apply new Title if given
               if (title) {
                 let first = true;
                 modifiedBlock = modifiedBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
@@ -418,16 +489,20 @@
                 });
               }
 
-              // Apply New Font
               if (targetFont) {
                 modifiedBlock = modifiedBlock.replace(/w:ascii="[^"]*"/gi, `w:ascii="${targetFont}"`);
                 modifiedBlock = modifiedBlock.replace(/w:hAnsi="[^"]*"/gi, `w:hAnsi="${targetFont}"`);
                 modifiedBlock = modifiedBlock.replace(/w:cs="[^"]*"/gi, `w:cs="${targetFont}"`);
               }
 
-              // Apply New Color
               if (targetColor) {
                 modifiedBlock = modifiedBlock.replace(/<w:color\s+w:val="[^"]*"/gi, `<w:color w:val="${targetColor}"`);
+              }
+
+              if (aiResult && aiResult.italic) {
+                if (!modifiedBlock.includes('<w:i/>')) {
+                  modifiedBlock = modifiedBlock.replace(/<w:rPr>/g, '<w:rPr><w:i/>');
+                }
               }
 
               return modifiedBlock;
@@ -464,7 +539,6 @@
         }
 
         if (url) {
-          // Hyperlinks ke andar replacement
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             let replaced = false;
             return match.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
@@ -476,7 +550,6 @@
             });
           });
 
-          // Plain text URLs in paragraphs
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/https?:\/\/|njournal|uscse|ejournal|index\.php/i.test(pBlock) && !pBlock.includes('<w:hyperlink')) {
               let replaced = false;
@@ -494,7 +567,6 @@
             return pBlock;
           });
 
-          // Clean lingering pieces
           text = text.replace(/<w:t\b[^>]*>\s*njournal\.com[^<]*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t\b[^>]*>\s*\/aij\/[^<]*<\/w:t>/gi, `<w:t></w:t>`);
           text = text.replace(/<w:t\b[^>]*>\s*\/ejsa[^<]*<\/w:t>/gi, `<w:t></w:t>`);
@@ -532,9 +604,13 @@
       });
 
       saveAs(outputBlob, "Updated_Journal_Paper.docx");
+      statusMsg.innerText = "✔ Document सफलतापूर्वक अपडेट हो गया!";
 
     } catch (e) {
       alert("Error: " + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Generate Updated MS Word (.docx)";
     }
   }
 </script>
