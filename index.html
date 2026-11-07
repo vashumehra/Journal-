@@ -371,7 +371,7 @@ Do NOT include backticks or markdown, return pure JSON.`;
     let italic = p.includes("italic") || p.includes("tircha");
     let bold = p.includes("bold") || p.includes("mota");
 
-    if (p.includes("times") || p.includes("times new roman")) font = "Times New Roman";
+    if (p.includes("times")) font = "Times New Roman";
     else if (p.includes("arial black")) font = "Arial Black";
     else if (p.includes("arial")) font = "Arial";
     else if (p.includes("segoe")) font = "Segoe UI Black";
@@ -577,11 +577,15 @@ Do NOT include backticks or markdown, return pure JSON.`;
       });
 
       saveAs(outputBlob, "Updated_Journal_Paper.docx");
-      statusMsg.innerText = "✔ Document सफलतापूर्वक अपडेट हो गया!";
+      statusMsg.innerText = "✔ Document डाउनलोड हो गया! पेज 2 सेकंड में नया लोड हो रहा है...";
+
+      // AUTO-RELOAD FOR FRESH NEW PAGE
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
 
     } catch (e) {
       alert("Error: " + e.message);
-    } finally {
       btn.disabled = false;
       btn.innerText = "Generate Updated MS Word (.docx)";
     }
