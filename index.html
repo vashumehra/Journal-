@@ -3,795 +3,505 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edwin Incorporation | Research Paper Header & Footer Automation Portal</title>
+  <title>Research Paper Header & Footer Automation Portal - Edwin Incorporation</title>
   
-  <!-- Google Fonts & Font Awesome Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            stone: {
-              50: '#fafaf9',
-              100: '#f5f5f4',
-              200: '#e7e5e4',
-              300: '#d6d3d1',
-              400: '#a8a29e',
-              500: '#78716c',
-              600: '#57534e',
-              700: '#44403c',
-              800: '#292524',
-              900: '#1c1917',
-            },
-            accent: {
-              DEFAULT: '#0f766e',
-              dark: '#115e59',
-              light: '#ccfbf1'
-            }
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            serif: ['Lora', 'serif'],
-            display: ['Cinzel', 'serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- JSZip & FileSaver for safe .docx handling -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f7f6f2;
+      color: #292524;
+      padding: 30px 15px;
     }
-    ::-webkit-scrollbar-track {
+
+    .main-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .custom-card {
+      background: #ffffff;
+      border: 1px solid #e7e5e4;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .section-title {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: #78716c;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .upload-zone {
+      border: 2px dashed #d6d3d1;
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      background: #fafaf9;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-zone:hover {
+      border-color: #0f172a;
       background: #f5f5f4;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #d6d3d1;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #a8a29e;
-    }
 
-    /* Interactive Dropzone dashed highlight */
-    .dropzone-box {
-      border: 1.5px dashed #cbd5e1;
-      transition: all 0.25s ease;
-    }
-    .dropzone-box:hover, .dropzone-box.drag-over {
-      border-color: #0f766e;
-      background-color: #f0fdfa;
-    }
-
-    /* Switch toggle */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #cbd5e1; transition: .25s; border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-      background-color: white; transition: .25s; border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    input:checked + .slider { background-color: #0f766e; }
-    input:checked + .slider:before { transform: translateX(20px); }
-
-    /* Paper Mockup styling */
-    .paper-sheet {
+    .custom-input, .custom-select {
+      border: 1px solid #d6d3d1;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
       width: 100%;
-      aspect-ratio: 1 / 1.414; /* A4 aspect ratio */
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    }
+
+    .custom-input:focus, .custom-select:focus {
+      border-color: #0f172a;
+      box-shadow: none;
+      outline: none;
+    }
+
+    /* Template Cards */
+    .template-card {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
       background: #ffffff;
-      transition: all 0.3s ease;
+      transition: all 0.2s;
+      height: 100%;
+    }
+
+    .template-card:hover {
+      border-color: #94a3b8;
+    }
+
+    .template-card.active {
+      border-color: #0f172a;
+      background: #f8fafc;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.15);
+    }
+
+    .process-btn {
+      background-color: #0f172a;
+      color: #ffffff;
+      font-weight: 600;
+      padding: 14px;
+      border-radius: 10px;
+      width: 100%;
+      border: none;
+      transition: 0.2s;
+    }
+
+    .process-btn:hover {
+      background-color: #1e293b;
+    }
+
+    .status-alert {
+      display: none;
+      margin-top: 15px;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.9rem;
     }
   </style>
 </head>
-<body class="bg-[#f7f6f4] text-stone-800 font-sans antialiased min-h-screen">
+<body>
 
-  <!-- TOP BRANDING NAVBAR -->
-  <header class="bg-white border-b border-stone-200 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-stone-900 text-white flex items-center justify-center font-display text-lg font-bold shadow-sm">
-          EI
-        </div>
-        <div>
-          <h1 class="font-display font-bold text-stone-900 text-base sm:text-lg tracking-wide leading-tight">
-            EDWIN INCORPORATION
-          </h1>
-          <p class="text-xs text-stone-500 font-medium">Research Paper Header & Footer Automation Portal</p>
-        </div>
+<div class="main-container">
+  
+  <!-- Header -->
+  <div class="text-center mb-4">
+    <h3 class="fw-bold mb-1">Research Paper Header & Footer Automation</h3>
+    <p class="text-muted small">Edwin Incorporation Automated Publishing Engine</p>
+  </div>
+
+  <!-- 1. Document Upload -->
+  <div class="custom-card">
+    <div class="section-title">📂 1. Select Word Document</div>
+    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept=".docx" style="display: none;" onchange="handleFile(this)">
+      <div id="fileUploadText" class="fw-medium text-secondary">
+        Click to select or drag & drop <b>.docx</b> file here
       </div>
+      <div class="text-muted small mt-1">टेबल, पैराग्राफ और फॉन्ट फॉर्मेटिंग 100% सुरक्षित रहेगी</div>
+    </div>
+  </div>
 
-      <div class="flex items-center gap-3">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Docx Engine Ready
-        </span>
-        <button onclick="resetDefaults()" class="hidden sm:inline-flex text-xs text-stone-500 hover:text-stone-800 font-medium px-2 py-1 border border-stone-200 rounded hover:bg-stone-50">
-          <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Reset
-        </button>
+  <!-- 2. Margins (Preset to your exact specifications) -->
+  <div class="custom-card">
+    <div class="section-title">📐 2. Page Margins (in cm)</div>
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <label class="form-label small fw-semibold">Top Margin (cm)</label>
+        <input type="number" step="0.01" id="mTop" class="custom-input" value="3.43">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small fw-semibold">Bottom Margin (cm)</label>
+        <input type="number" step="0.01" id="mBottom" class="custom-input" value="1.9">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small fw-semibold">Left Margin (cm)</label>
+        <input type="number" step="0.01" id="mLeft" class="custom-input" value="1.6">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small fw-semibold">Right Margin (cm)</label>
+        <input type="number" step="0.01" id="mRight" class="custom-input" value="1.6">
       </div>
     </div>
-  </header>
+  </div>
 
-  <!-- MAIN WRAPPER: 2 COLUMNS (CONTROLS ON LEFT, REAL-TIME A4 PREVIEW ON RIGHT) -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      
-      <!-- LEFT COLUMN: CONTROLS & SETTINGS (7 COLS) -->
-      <div class="lg:col-span-7 space-y-6">
-
-        <!-- 1. FILE UPLOAD CARDS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- DOCX Upload -->
-          <div class="dropzone-box bg-white rounded-xl p-4 text-center cursor-pointer relative group" id="docxDropzone" onclick="document.getElementById('docxInput').click()">
-            <input type="file" id="docxInput" accept=".docx,.doc" class="hidden" onchange="handleDocxSelect(event)">
-            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 group-hover:text-accent group-hover:bg-accent-light/50 transition">
-              <i class="fa-regular fa-folder-open text-lg"></i>
-            </div>
-            <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider mb-1">
-              1. OLD File (.docx)
-            </h3>
-            <p class="text-[11px] text-stone-500 line-clamp-1" id="docxFileName">
-              Drag & Drop file yahan karein
-            </p>
-            <span class="inline-block mt-2 text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-              <i class="fa-solid fa-shield-halved mr-1"></i>Table & Layout Safe
-            </span>
-          </div>
-
-          <!-- Logo Upload -->
-          <div class="dropzone-box bg-white rounded-xl p-4 text-center cursor-pointer relative group" id="logoDropzone" onclick="document.getElementById('logoInput').click()">
-            <input type="file" id="logoInput" accept="image/*" class="hidden" onchange="handleLogoSelect(event)">
-            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 group-hover:text-accent group-hover:bg-accent-light/50 transition" id="logoIconContainer">
-              <i class="fa-regular fa-image text-lg"></i>
-            </div>
-            <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider mb-1">
-              2. NEW Journal Logo
-            </h3>
-            <p class="text-[11px] text-stone-500" id="logoFileName">
-              Replace purana logo (Optional)
-            </p>
-            <span class="inline-block mt-2 text-[10px] text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-              PNG, JPG, SVG supported
-            </span>
-          </div>
-        </div>
-
-        <!-- 2. AI ASSISTANT PROMPT BOX -->
-        <div class="bg-gradient-to-r from-stone-900 to-stone-800 text-white rounded-xl p-4 shadow-sm border border-stone-800">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-amber-400 text-sm">✨</span>
-            <label class="text-xs font-semibold tracking-wide text-stone-200">
-              AI Design Assistant (Hindi ya Hinglish me batayein):
-            </label>
-          </div>
-          <div class="relative">
-            <textarea id="aiPrompt" rows="2" placeholder="Jaise: 'Header me logo left side ho aur title thoda bold italic me, divider line navy blue me ho...'" class="w-full text-xs bg-stone-800/80 text-stone-100 border border-stone-700 rounded-lg p-2.5 focus:outline-none focus:border-accent-light placeholder:text-stone-500 font-sans resize-none"></textarea>
-            <button onclick="applyAiPromptSuggestion()" class="absolute right-2 bottom-2 bg-stone-700 hover:bg-stone-600 text-[11px] text-stone-200 px-2.5 py-1 rounded transition flex items-center gap-1">
-              <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Apply Hint
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. PAGE MARGINS & LAYOUT CARD (Your Top: 3.43cm, Bottom: 1.9cm, Left: 1.6cm, Right: 1.6cm) -->
-        <div class="bg-white rounded-xl p-5 border border-stone-200/90 shadow-sm">
-          <div class="flex items-center justify-between mb-3 border-b border-stone-100 pb-2">
-            <div class="flex items-center gap-2">
-              <span class="text-stone-400 text-xs">❖</span>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-stone-700">PAGE MARGINS & LAYOUT</h2>
-            </div>
-            <span class="text-[11px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">Unit: Centimeters (cm)</span>
-          </div>
-
-          <!-- Quick Preset Margin Tiles -->
-          <div class="grid grid-cols-3 gap-2.5 mb-4">
-            <!-- Active Default Preset: Journal Standard -->
-            <button type="button" onclick="setMargins(3.43, 1.9, 1.6, 1.6, this)" class="preset-btn active border-2 border-stone-900 bg-stone-50 p-2.5 rounded-lg text-left transition text-stone-900">
-              <div class="text-xs font-bold flex items-center justify-between">
-                Journal Standard
-                <i class="fa-solid fa-check text-[10px] text-accent"></i>
-              </div>
-              <div class="text-[11px] text-stone-500 mt-0.5 font-mono">T:3.43 B:1.9 L/R:1.6</div>
-            </button>
-
-            <!-- Standard 1 Inch -->
-            <button type="button" onclick="setMargins(2.54, 2.54, 2.54, 2.54, this)" class="preset-btn border border-stone-200 bg-white hover:bg-stone-50 p-2.5 rounded-lg text-left transition text-stone-700">
-              <div class="text-xs font-semibold">Standard (1")</div>
-              <div class="text-[11px] text-stone-400 mt-0.5 font-mono">2.54 cm all sides</div>
-            </button>
-
-            <!-- Narrow -->
-            <button type="button" onclick="setMargins(1.27, 1.27, 1.27, 1.27, this)" class="preset-btn border border-stone-200 bg-white hover:bg-stone-50 p-2.5 rounded-lg text-left transition text-stone-700">
-              <div class="text-xs font-semibold">Narrow</div>
-              <div class="text-[11px] text-stone-400 mt-0.5 font-mono">1.27 cm all sides</div>
-            </button>
-          </div>
-
-          <!-- 4 Explicit Inputs for Margins -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div>
-              <label class="block text-[11px] font-medium text-stone-600 mb-1">Top Margin</label>
-              <div class="relative">
-                <input type="number" step="0.01" id="marginTop" value="3.43" oninput="updateLivePreview()" class="w-full bg-stone-50 border border-stone-200 rounded-md px-2.5 py-1.5 text-xs text-stone-800 font-mono focus:bg-white focus:outline-none focus:border-stone-500">
-                <span class="absolute right-2 top-1.5 text-[10px] text-stone-400">cm</span>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-medium text-stone-600 mb-1">Bottom Margin</label>
-              <div class="relative">
-                <input type="number" step="0.01" id="marginBottom" value="1.9" oninput="updateLivePreview()" class="w-full bg-stone-50 border border-stone-200 rounded-md px-2.5 py-1.5 text-xs text-stone-800 font-mono focus:bg-white focus:outline-none focus:border-stone-500">
-                <span class="absolute right-2 top-1.5 text-[10px] text-stone-400">cm</span>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-medium text-stone-600 mb-1">Left Margin</label>
-              <div class="relative">
-                <input type="number" step="0.01" id="marginLeft" value="1.6" oninput="updateLivePreview()" class="w-full bg-stone-50 border border-stone-200 rounded-md px-2.5 py-1.5 text-xs text-stone-800 font-mono focus:bg-white focus:outline-none focus:border-stone-500">
-                <span class="absolute right-2 top-1.5 text-[10px] text-stone-400">cm</span>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-[11px] font-medium text-stone-600 mb-1">Right Margin</label>
-              <div class="relative">
-                <input type="number" step="0.01" id="marginRight" value="1.6" oninput="updateLivePreview()" class="w-full bg-stone-50 border border-stone-200 rounded-md px-2.5 py-1.5 text-xs text-stone-800 font-mono focus:bg-white focus:outline-none focus:border-stone-500">
-                <span class="absolute right-2 top-1.5 text-[10px] text-stone-400">cm</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. AUTO SMART HEADER & FOOTER TEMPLATES (3-4 Best Options) -->
-        <div class="bg-white rounded-xl p-5 border border-stone-200/90 shadow-sm">
-          <div class="flex items-center justify-between mb-3 border-b border-stone-100 pb-2">
-            <div class="flex items-center gap-2">
-              <span class="text-stone-400 text-xs">❖</span>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-stone-700">
-                SMART HEADER & FOOTER PRESETS
-              </h2>
-            </div>
-            
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-stone-500 font-medium">Auto-Generate</span>
-              <label class="switch">
-                <input type="checkbox" id="autoGenerateToggle" checked onchange="toggleAutoGenerate(this.checked)">
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <p class="text-xs text-stone-500 mb-3">
-            Agar purani file me koi header/footer na mile, tab bhi niche diye gaye 4 me se koi ek best option chun sakte hain:
-          </p>
-
-          <!-- 4 Presets Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="presetsCardsGroup">
-            
-            <!-- Preset 1 -->
-            <div onclick="selectLayout('academic', this)" class="template-card border-2 border-accent bg-teal-50/20 p-3 rounded-lg cursor-pointer hover:bg-stone-50 transition relative">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                  <i class="fa-solid fa-graduation-cap text-accent"></i> 1. Classic Academic
-                </span>
-                <span class="text-[10px] text-accent font-semibold bg-accent-light px-1.5 py-0.5 rounded">Selected</span>
-              </div>
-              <div class="text-[11px] text-stone-600 space-y-1">
-                <p>• <b>Header:</b> Logo Left + Title | Vol, Issue & ISSN Right (Divider line)</p>
-                <p>• <b>Footer:</b> Journal URL Left | Page X of Y Right</p>
-              </div>
-            </div>
-
-            <!-- Preset 2 -->
-            <div onclick="selectLayout('minimalist', this)" class="template-card border border-stone-200 bg-white p-3 rounded-lg cursor-pointer hover:bg-stone-50 transition relative">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                  <i class="fa-solid fa-feather-pointed text-stone-600"></i> 2. Modern Minimalist
-                </span>
-              </div>
-              <div class="text-[11px] text-stone-600 space-y-1">
-                <p>• <b>Header:</b> Centered Title (Uppercase) | Subtitle: ISSN & Year</p>
-                <p>• <b>Footer:</b> Centered clean page dashes (— 1 —)</p>
-              </div>
-            </div>
-
-            <!-- Preset 3 -->
-            <div onclick="selectLayout('institutional', this)" class="template-card border border-stone-200 bg-white p-3 rounded-lg cursor-pointer hover:bg-stone-50 transition relative">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                  <i class="fa-solid fa-landmark text-stone-600"></i> 3. Institutional Box Grid
-                </span>
-              </div>
-              <div class="text-[11px] text-stone-600 space-y-1">
-                <p>• <b>Header:</b> 2-Column table box layout with logo and index status</p>
-                <p>• <b>Footer:</b> Indexed In / Official Portal Link + Right page #</p>
-              </div>
-            </div>
-
-            <!-- Preset 4 -->
-            <div onclick="selectLayout('compact', this)" class="template-card border border-stone-200 bg-white p-3 rounded-lg cursor-pointer hover:bg-stone-50 transition relative">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                  <i class="fa-solid fa-book-bookmark text-stone-600"></i> 4. IEEE / Springer Style
-                </span>
-              </div>
-              <div class="text-[11px] text-stone-600 space-y-1">
-                <p>• <b>Header:</b> Running Title in small italic serif font + DOI placeholder</p>
-                <p>• <b>Footer:</b> © Publisher Rights reserved + Page number</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- 5. JOURNAL METADATA INPUTS -->
-        <div class="bg-white rounded-xl p-5 border border-stone-200/90 shadow-sm space-y-4">
-          <div class="flex items-center gap-2 border-b border-stone-100 pb-2">
-            <span class="text-stone-400 text-xs">❖</span>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-stone-700">JOURNAL METADATA & DETAILS</h2>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-stone-700 mb-1">
-              NEW Journal Title: <span class="text-stone-400">(Optional)</span>
-            </label>
-            <input type="text" id="journalTitle" value="American Journal of Integrative and Preventive Medicine" oninput="updateLivePreview()" placeholder="e.g. American Journal of Preventive Medicine" class="w-full bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-xs text-stone-800 focus:bg-white focus:outline-none focus:border-stone-500 font-medium">
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-stone-700 mb-1">NEW Volume:</label>
-              <input type="text" id="journalVolume" value="Volume 01" oninput="updateLivePreview()" placeholder="e.g. Volume 01" class="w-full bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-xs text-stone-800 focus:bg-white focus:outline-none focus:border-stone-500">
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-stone-700 mb-1">NEW Issue:</label>
-              <input type="text" id="journalIssue" value="Issue 01" oninput="updateLivePreview()" placeholder="e.g. Issue 01" class="w-full bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-xs text-stone-800 focus:bg-white focus:outline-none focus:border-stone-500">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-stone-700 mb-1">NEW ISSN: <span class="text-stone-400">(Optional)</span></label>
-              <input type="text" id="journalIssn" value="3070-6025" oninput="updateLivePreview()" placeholder="e.g. 3070-6025" class="w-full bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-xs text-stone-800 focus:bg-white focus:outline-none focus:border-stone-500 font-mono">
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-stone-700 mb-1">NEW URL: <span class="text-stone-400">(Optional)</span></label>
-              <input type="text" id="journalUrl" value="https://uscse.com/uscse/index.php/AJIPM/home" oninput="updateLivePreview()" placeholder="https://..." class="w-full bg-stone-50 border border-stone-200 rounded-lg px-3 py-2 text-xs text-stone-800 focus:bg-white focus:outline-none focus:border-stone-500">
-            </div>
-          </div>
-        </div>
-
-        <!-- 6. ACTION BUTTONS -->
-        <div class="pt-2">
-          <button onclick="startProcessing()" id="processBtn" class="w-full py-3.5 px-6 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-file-circle-check"></i>
-            <span>Process & Generate DOCX with New Margins & Header</span>
-          </button>
-        </div>
-
+  <!-- 3. Metadata Inputs -->
+  <div class="custom-card">
+    <div class="section-title">📝 3. Journal Details & Metadata</div>
+    <div class="row g-3">
+      <div class="col-md-12">
+        <label class="form-label small fw-semibold">Journal Title</label>
+        <input type="text" id="jTitle" class="custom-input" value="American Journal of Integrative and Preventive Medicine">
       </div>
-
-      <!-- RIGHT COLUMN: LIVE INTERACTIVE A4 DOCUMENT PREVIEW (5 COLS) -->
-      <div class="lg:col-span-5 sticky top-20">
-        <div class="bg-white rounded-xl p-4 border border-stone-200/90 shadow-sm">
-          
-          <div class="flex items-center justify-between mb-3 pb-2 border-b border-stone-100">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-accent"></span>
-              <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700">Live Document Page Preview</h3>
-            </div>
-            <span class="text-[11px] font-mono text-stone-500" id="previewMarginLabel">
-              Top: 3.43cm | Bot: 1.9cm
-            </span>
-          </div>
-
-          <!-- A4 Canvas Mockup Container -->
-          <div class="bg-stone-100/70 p-3 sm:p-5 rounded-lg border border-stone-200 flex justify-center overflow-hidden">
-            <div class="paper-sheet rounded p-4 flex flex-col justify-between relative border border-stone-200 text-stone-800 text-[9px] leading-tight select-none">
-
-              <!-- DYNAMIC HEADER PREVIEW -->
-              <div id="previewHeaderArea" class="border-b pb-2 transition-all">
-                <!-- Injected via JavaScript based on preset -->
-              </div>
-
-              <!-- DUMMY PAPER BODY TEXT (Preserved layout representation) -->
-              <div class="my-auto py-4 space-y-2.5 opacity-75">
-                <div class="text-[10px] font-bold text-stone-900 text-center font-serif uppercase tracking-wide">
-                  An Empirical Assessment of Preventive Healthcare Methodologies
-                </div>
-                <div class="text-[8px] text-stone-500 text-center italic">
-                  Research Article • Received: October 2026 • Accepted: November 2026
-                </div>
-                
-                <div class="mt-2 space-y-1.5 text-stone-600 text-[8px] leading-relaxed">
-                  <p class="font-bold text-stone-800">Abstract:</p>
-                  <p>
-                    This paper presents a standardized algorithmic framework for clinical automation and multi-journal formatting compliance. All typography, margin spacing, and section metadata are synchronized dynamically.
-                  </p>
-                  <!-- Mock text lines -->
-                  <div class="h-1.5 bg-stone-200 rounded w-full"></div>
-                  <div class="h-1.5 bg-stone-200 rounded w-11/12"></div>
-                  <div class="h-1.5 bg-stone-200 rounded w-4/5"></div>
-                  <div class="h-1.5 bg-stone-200 rounded w-full mt-2"></div>
-                  <div class="h-1.5 bg-stone-200 rounded w-10/12"></div>
-                </div>
-              </div>
-
-              <!-- DYNAMIC FOOTER PREVIEW -->
-              <div id="previewFooterArea" class="border-t pt-2 text-[8px] text-stone-500 transition-all">
-                <!-- Injected via JavaScript based on preset -->
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Status badge below preview -->
-          <div class="mt-3 flex items-center justify-between text-[11px] text-stone-500">
-            <span><i class="fa-solid fa-arrows-split-up-and-left mr-1"></i>Dynamic Margins Active</span>
-            <span class="text-accent font-medium"><i class="fa-solid fa-circle-check mr-1"></i>Realtime synced</span>
-          </div>
-
-        </div>
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold">Volume</label>
+        <input type="text" id="jVol" class="custom-input" value="Volume 01">
       </div>
-
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold">Issue</label>
+        <input type="text" id="jIssue" class="custom-input" value="Issue 01">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold">ISSN</label>
+        <input type="text" id="jIssn" class="custom-input" value="3070-6025">
+      </div>
+      <div class="col-md-12">
+        <label class="form-label small fw-semibold">Journal URL / Website</label>
+        <input type="text" id="jUrl" class="custom-input" value="https://uscse.com/uscse/index.php/AJIPM/home">
+      </div>
     </div>
-  </main>
+  </div>
 
-  <!-- MODAL / PROCESSING OVERLAY -->
-  <div id="processModal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-stone-200 mx-4 transform transition-all text-center">
+  <!-- 4. Smart Template Options (अगर पुराना हेडर न हो तब भी काम करेगा) -->
+  <div class="custom-card">
+    <div class="section-title">✨ 4. Choose Header & Footer Design</div>
+    <div class="row g-3">
       
-      <div id="modalLoadingState">
-        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-teal-50 text-accent flex items-center justify-center text-2xl animate-spin">
-          <i class="fa-solid fa-circle-notch"></i>
-        </div>
-        <h3 class="text-base font-bold text-stone-900 mb-1">Applying Changes to DOCX</h3>
-        <p class="text-xs text-stone-500 mb-4" id="modalProgressText">
-          Applying margins (Top: 3.43 cm, Bottom: 1.9 cm, Left/Right: 1.6 cm)...
-        </p>
-        <div class="w-full bg-stone-100 rounded-full h-2 mb-2 overflow-hidden">
-          <div id="progressBar" class="bg-accent h-2 rounded-full transition-all duration-300" style="width: 25%"></div>
+      <!-- Option 1 -->
+      <div class="col-md-6">
+        <div class="template-card active" onclick="pickDesign(1, this)">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold">1. Classic Academic Dual-Line</span>
+            <span class="badge bg-dark">Popular</span>
+          </div>
+          <div class="small text-muted">
+            <b>Header:</b> Left Title | Right Vol, Issue, ISSN (Divider line के साथ)<br>
+            <b>Footer:</b> Left URL / Rights | Right Page Numbers
+          </div>
         </div>
       </div>
 
-      <div id="modalSuccessState" class="hidden">
-        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
-          <i class="fa-solid fa-check"></i>
+      <!-- Option 2 -->
+      <div class="col-md-6">
+        <div class="template-card" onclick="pickDesign(2, this)">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold">2. Modern Minimalist</span>
+          </div>
+          <div class="small text-muted">
+            <b>Header:</b> Centered Bold Title + ISSN/Volume सब-हेडिंग<br>
+            <b>Footer:</b> Center Page Number (— 1 —)
+          </div>
         </div>
-        <h3 class="text-base font-bold text-stone-900 mb-1">Document Processed Successfully!</h3>
-        <p class="text-xs text-stone-500 mb-5">
-          New layout, logo, header and margins have been compiled into your updated .docx file.
-        </p>
-        <div class="flex gap-3 justify-center">
-          <button onclick="downloadDocxFile()" class="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg shadow transition flex items-center gap-2">
-            <i class="fa-solid fa-download"></i> Download Processed File
-          </button>
-          <button onclick="closeModal()" class="px-4 py-2.5 border border-stone-200 text-stone-700 hover:bg-stone-50 text-xs font-semibold rounded-lg transition">
-            Close
-          </button>
+      </div>
+
+      <!-- Option 3 -->
+      <div class="col-md-6">
+        <div class="template-card" onclick="pickDesign(3, this)">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold">3. Springer / IEEE Standard</span>
+          </div>
+          <div class="small text-muted">
+            <b>Header:</b> Italic Small Caps Header (Left Title, Right ISSN)<br>
+            <b>Footer:</b> Running Title Left, Pure Page Number Right
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 4 -->
+      <div class="col-md-6">
+        <div class="template-card" onclick="pickDesign(4, this)">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold">4. Institutional Grid Box</span>
+          </div>
+          <div class="small text-muted">
+            <b>Header:</b> Two-Column Structured Box Layout<br>
+            <b>Footer:</b> Official Website Link with Document Security Footer
+          </div>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-stone-900 text-white text-xs px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-    <i class="fa-solid fa-bell text-amber-400"></i>
-    <span id="toastMessage">Notification message</span>
-  </div>
+  <!-- Process Button -->
+  <button class="process-btn" id="generateBtn" onclick="processDocxFile()">
+    ⚡ Apply Headers, Margins & Download Safe .DOCX
+  </button>
 
-  <!-- SCRIPT LOGIC -->
-  <script>
-    // State management
-    let activePreset = 'academic';
-    let uploadedLogoUrl = null;
-    let uploadedDocxName = null;
+  <div id="statusBox" class="status-alert"></div>
 
-    // Default Margins
-    let margins = {
-      top: 3.43,
-      bottom: 1.9,
-      left: 1.6,
-      right: 1.6
-    };
+</div>
 
-    window.onload = function() {
-      updateLivePreview();
-    };
+<script>
+let currentFile = null;
+let selectedDesign = 1;
 
-    // Set Preset Margins
-    function setMargins(top, bottom, left, right, element) {
-      document.getElementById('marginTop').value = top;
-      document.getElementById('marginBottom').value = bottom;
-      document.getElementById('marginLeft').value = left;
-      document.getElementById('marginRight').value = right;
+function pickDesign(id, el) {
+  selectedDesign = id;
+  document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
 
-      // Update UI active buttons
-      document.querySelectorAll('.preset-btn').forEach(btn => {
-        btn.classList.remove('active', 'border-2', 'border-stone-900', 'bg-stone-50', 'text-stone-900');
-        btn.classList.add('border-stone-200', 'bg-white', 'text-stone-700');
-        const checkIcon = btn.querySelector('.fa-check');
-        if (checkIcon) checkIcon.remove();
-      });
+function handleFile(input) {
+  if (input.files && input.files[0]) {
+    currentFile = input.files[0];
+    document.getElementById('fileUploadText').innerHTML = `✅ Selected: <b>${currentFile.name}</b>`;
+  }
+}
 
-      element.classList.add('active', 'border-2', 'border-stone-900', 'bg-stone-50', 'text-stone-900');
-      element.classList.remove('border-stone-200', 'bg-white');
+// Convert CM to Word DXA (1 cm = 567 dxa)
+function cmToDxa(val, defaultVal) {
+  let num = parseFloat(val);
+  if (isNaN(num)) num = defaultVal;
+  return Math.round(num * 567);
+}
 
-      const titleDiv = element.querySelector('div:first-child');
-      if (!titleDiv.querySelector('.fa-check')) {
-        const icon = document.createElement('i');
-        icon.className = 'fa-solid fa-check text-[10px] text-accent';
-        titleDiv.appendChild(icon);
-      }
+// Safe Word XML String Escaper
+function escXml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
-      showToast(`Margins updated: Top ${top}cm, Bottom ${bottom}cm, L/R ${left}cm`);
-      updateLivePreview();
+async function processDocxFile() {
+  const statusBox = document.getElementById('statusBox');
+
+  if (!currentFile) {
+    statusBox.style.display = 'block';
+    statusBox.className = 'status-alert alert alert-warning';
+    statusBox.innerText = 'कृपया पहले एक .docx फ़ाइल अपलोड करें!';
+    return;
+  }
+
+  statusBox.style.display = 'block';
+  statusBox.className = 'status-alert alert alert-info';
+  statusBox.innerText = 'फ़ाइल प्रोसेस हो रही है... कृपया प्रतीक्षा करें';
+
+  try {
+    const zip = new JSZip();
+    const docxZip = await zip.loadAsync(currentFile);
+
+    // Margins (in dxa)
+    const topDxa = cmToDxa(document.getElementById('mTop').value, 3.43);
+    const bottomDxa = cmToDxa(document.getElementById('mBottom').value, 1.9);
+    const leftDxa = cmToDxa(document.getElementById('mLeft').value, 1.6);
+    const rightDxa = cmToDxa(document.getElementById('mRight').value, 1.6);
+
+    // Metadata
+    const title = escXml(document.getElementById('jTitle').value);
+    const vol = escXml(document.getElementById('jVol').value);
+    const issue = escXml(document.getElementById('jIssue').value);
+    const issn = escXml(document.getElementById('jIssn').value);
+    const url = escXml(document.getElementById('jUrl').value);
+
+    // Generate Custom XML based on selected design
+    let headerXml = "";
+    let footerXml = "";
+
+    if (selectedDesign === 1) {
+      // Classic Academic
+      headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr>
+            <w:pBdr><w:bottom w:val="single" w:sz="6" w:space="4" w:color="CCCCCC"/></w:pBdr>
+            <w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs>
+          </w:pPr>
+          <w:r><w:rPr><w:b/><w:sz w:val="18"/></w:rPr><w:t>${title}</w:t></w:r>
+          <w:r><w:tab/><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${vol}, ${issue} | ISSN: ${issn}</w:t></w:r>
+        </w:p>
+      </w:hdr>`;
+
+      footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr><w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs></w:pPr>
+          <w:r><w:rPr><w:sz w:val="16"/><w:color w:val="777777"/></w:rPr><w:t>${url}</w:t></w:r>
+          <w:r><w:tab/><w:rPr><w:sz w:val="16"/></w:rPr><w:t>Page </w:t></w:r>
+          <w:fldSimple w:instr="PAGE"/>
+          <w:r><w:rPr><w:sz w:val="16"/></w:rPr><w:t> of </w:t></w:r>
+          <w:fldSimple w:instr="NUMPAGES"/>
+        </w:p>
+      </w:ftr>`;
+    } else if (selectedDesign === 2) {
+      // Modern Minimalist
+      headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr><w:jc w:val="center"/></w:pPr>
+          <w:r><w:rPr><w:b/><w:sz w:val="18"/></w:rPr><w:t>${title.toUpperCase()}</w:t></w:r>
+        </w:p>
+        <w:p>
+          <w:pPr><w:jc w:val="center"/></w:pPr>
+          <w:r><w:rPr><w:sz w:val="15"/><w:color w:val="888888"/></w:rPr><w:t>${vol} • ${issue} • ISSN: ${issn}</w:t></w:r>
+        </w:p>
+      </w:hdr>`;
+
+      footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr><w:jc w:val="center"/></w:pPr>
+          <w:r><w:rPr><w:sz w:val="16"/></w:rPr><w:t>— </w:t></w:r>
+          <w:fldSimple w:instr="PAGE"/>
+          <w:r><w:rPr><w:sz w:val="16"/></w:rPr><w:t> —</w:t></w:r>
+        </w:p>
+      </w:ftr>`;
+    } else if (selectedDesign === 3) {
+      // Springer / IEEE
+      headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr><w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs></w:pPr>
+          <w:r><w:rPr><w:i/><w:sz w:val="16"/><w:color w:val="555555"/></w:rPr><w:t>${title}</w:t></w:r>
+          <w:r><w:tab/><w:rPr><w:sz w:val="16"/><w:color w:val="555555"/></w:rPr><w:t>ISSN ${issn}</w:t></w:r>
+        </w:p>
+      </w:hdr>`;
+
+      footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr><w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs></w:pPr>
+          <w:r><w:rPr><w:sz w:val="16"/></w:rPr><w:t>${vol}, ${issue}</w:t></w:r>
+          <w:r><w:tab/><w:rPr><w:sz w:val="16"/></w:rPr><w:t>Page </w:t></w:r>
+          <w:fldSimple w:instr="PAGE"/>
+        </w:p>
+      </w:ftr>`;
+    } else {
+      // Institutional Box
+      headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr>
+            <w:pBdr>
+              <w:top w:val="single" w:sz="4" w:space="2" w:color="888888"/>
+              <w:bottom w:val="single" w:sz="8" w:space="3" w:color="000000"/>
+            </w:pBdr>
+            <w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs>
+          </w:pPr>
+          <w:r><w:rPr><w:b/><w:sz w:val="18"/></w:rPr><w:t>${title}</w:t></w:r>
+          <w:r><w:tab/><w:rPr><w:b/><w:sz w:val="16"/></w:rPr><w:t>${vol} (${issue})</w:t></w:r>
+        </w:p>
+      </w:hdr>`;
+
+      footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+      <w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+        <w:p>
+          <w:pPr>
+            <w:pBdr><w:top w:val="single" w:sz="4" w:space="2" w:color="888888"/></w:pBdr>
+            <w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs>
+          </w:pPr>
+          <w:r><w:rPr><w:sz w:val="15"/><w:color w:val="666666"/></w:rPr><w:t>Published via ${url}</w:t></w:r>
+          <w:r><w:tab/><w:rPr><w:sz w:val="16"/><w:b/></w:rPr><w:t>Page </w:t></w:r>
+          <w:fldSimple w:instr="PAGE"/>
+        </w:p>
+      </w:ftr>`;
     }
 
-    // Preset Selection for Header & Footer
-    function selectLayout(type, element) {
-      activePreset = type;
-      
-      document.querySelectorAll('.template-card').forEach(card => {
-        card.classList.remove('border-2', 'border-accent', 'bg-teal-50/20');
-        card.classList.add('border', 'border-stone-200', 'bg-white');
-        const badge = card.querySelector('.text-accent.bg-accent-light');
-        if (badge) badge.remove();
-      });
+    // 1. Write Header & Footer XMLs safely
+    docxZip.file("word/headerCustom1.xml", headerXml);
+    docxZip.file("word/footerCustom1.xml", footerXml);
 
-      element.classList.add('border-2', 'border-accent', 'bg-teal-50/20');
-      element.classList.remove('border-stone-200', 'bg-white');
-
-      const headerTitle = element.querySelector('.flex.items-center.justify-between');
-      const badge = document.createElement('span');
-      badge.className = 'text-[10px] text-accent font-semibold bg-accent-light px-1.5 py-0.5 rounded';
-      badge.innerText = 'Selected';
-      headerTitle.appendChild(badge);
-
-      updateLivePreview();
+    // 2. Safe Content Types Registration
+    let contentTypesXml = await docxZip.file("[Content_Types].xml").async("text");
+    if (!contentTypesXml.includes("headerCustom1.xml")) {
+      contentTypesXml = contentTypesXml.replace('</Types>', 
+        '<Override PartName="/word/headerCustom1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' +
+        '<Override PartName="/word/footerCustom1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>' +
+        '</Types>');
+      docxZip.file("[Content_Types].xml", contentTypesXml);
     }
 
-    // Toggle Auto Generate
-    function toggleAutoGenerate(isChecked) {
-      const group = document.getElementById('presetsCardsGroup');
-      if (!isChecked) {
-        group.classList.add('opacity-40', 'pointer-events-none');
-        showToast("Auto-generation turned OFF (will preserve original if found)");
-      } else {
-        group.classList.remove('opacity-40', 'pointer-events-none');
-        showToast("Auto-generation turned ON with 4 Smart Presets");
-      }
-      updateLivePreview();
+    // 3. Safe Relationships Registration in word/_rels/document.xml.rels
+    let relsXml = await docxZip.file("word/_rels/document.xml.rels").async("text");
+    const rIdHeader = "rIdCustomHeader99";
+    const rIdFooter = "rIdCustomFooter99";
+
+    if (!relsXml.includes(rIdHeader)) {
+      relsXml = relsXml.replace('</Relationships>',
+        `<Relationship Id="${rIdHeader}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="headerCustom1.xml"/>` +
+        `<Relationship Id="${rIdFooter}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footerCustom1.xml"/>` +
+        '</Relationships>');
+      docxZip.file("word/_rels/document.xml.rels", relsXml);
     }
 
-    // Update the live simulated preview on the right
-    function updateLivePreview() {
-      const topVal = parseFloat(document.getElementById('marginTop').value) || 3.43;
-      const botVal = parseFloat(document.getElementById('marginBottom').value) || 1.9;
-      const leftVal = parseFloat(document.getElementById('marginLeft').value) || 1.6;
-      const rightVal = parseFloat(document.getElementById('marginRight').value) || 1.6;
+    // 4. Update word/document.xml (Inject Margins & Links to Header/Footer without corrupting body)
+    let docXml = await docxZip.file("word/document.xml").async("text");
 
-      // Update preview label
-      document.getElementById('previewMarginLabel').innerText = `Top: ${topVal}cm | Bot: ${botVal}cm`;
+    const headerRef = `<w:headerReference w:type="default" r:id="${rIdHeader}"/>`;
+    const footerRef = `<w:footerReference w:type="default" r:id="${rIdFooter}"/>`;
+    const pgMarTag = `<w:pgMar w:top="${topDxa}" w:bottom="${bottomDxa}" w:left="${leftDxa}" w:right="${rightDxa}" w:header="708" w:footer="708" w:gutter="0"/>`;
 
-      const title = document.getElementById('journalTitle').value || 'Research Journal Title';
-      const vol = document.getElementById('journalVolume').value || 'Vol. 01';
-      const issue = document.getElementById('journalIssue').value || 'Iss. 01';
-      const issn = document.getElementById('journalIssn').value || 'XXXX-XXXX';
-      const url = document.getElementById('journalUrl').value || 'https://journal.org';
-
-      const headerArea = document.getElementById('previewHeaderArea');
-      const footerArea = document.getElementById('previewFooterArea');
-
-      const logoImgHtml = uploadedLogoUrl 
-        ? `<img src="${uploadedLogoUrl}" class="h-6 w-auto object-contain mr-1.5 inline-block" />`
-        : `<div class="w-5 h-5 bg-stone-900 text-white rounded text-[8px] inline-flex items-center justify-center font-bold mr-1">J</div>`;
-
-      // Render preset variations
-      if (activePreset === 'academic') {
-        headerArea.className = "border-b border-stone-800/80 pb-1.5";
-        headerArea.innerHTML = `
-          <div class="flex items-center justify-between text-[8px]">
-            <div class="flex items-center font-serif font-bold text-stone-900 truncate max-w-[65%]">
-              ${logoImgHtml}
-              <span class="truncate">${title}</span>
-            </div>
-            <div class="text-right text-[7px] text-stone-500 font-mono">
-              ${vol}, ${issue} | ISSN: ${issn}
-            </div>
-          </div>
-        `;
-
-        footerArea.className = "border-t border-stone-300 pt-1 text-[7px] text-stone-500 flex justify-between";
-        footerArea.innerHTML = `
-          <div class="truncate max-w-[70%] font-mono">${url}</div>
-          <div>Page 1 of 12</div>
-        `;
-      } 
-      else if (activePreset === 'minimalist') {
-        headerArea.className = "text-center pb-1.5 border-b border-stone-200";
-        headerArea.innerHTML = `
-          <div class="text-[8px] font-bold text-stone-800 tracking-wider uppercase">${title}</div>
-          <div class="text-[6.5px] text-stone-400 font-mono mt-0.5">ISSN: ${issn} • ${vol} • 2026</div>
-        `;
-
-        footerArea.className = "text-center pt-1 text-[7.5px] text-stone-400 font-mono";
-        footerArea.innerHTML = `— Page 1 —`;
-      } 
-      else if (activePreset === 'institutional') {
-        headerArea.className = "border border-stone-300 rounded p-1 bg-stone-50/50 mb-1";
-        headerArea.innerHTML = `
-          <div class="flex items-center justify-between text-[7.5px]">
-            <div class="flex items-center gap-1 font-bold text-stone-900">
-              ${logoImgHtml}
-              <span>${title}</span>
-            </div>
-            <div class="text-right text-[6.5px] bg-stone-200 px-1 py-0.5 rounded font-mono">
-              Indexed • ${vol}
-            </div>
-          </div>
-        `;
-
-        footerArea.className = "border border-stone-200 rounded p-1 text-[6.5px] text-stone-500 flex justify-between";
-        footerArea.innerHTML = `
-          <div>Official Portal: ${url.replace('https://', '')}</div>
-          <div class="font-bold">AJIPM • Page 1</div>
-        `;
-      } 
-      else if (activePreset === 'compact') {
-        headerArea.className = "flex justify-between items-baseline border-b border-stone-400/50 pb-1 text-[7px] italic text-stone-600";
-        headerArea.innerHTML = `
-          <span class="truncate max-w-[70%]">${title} (${vol}, ${issue})</span>
-          <span class="font-mono text-[6px]">doi:10.1016/j.ajipm.2026</span>
-        `;
-
-        footerArea.className = "flex justify-between items-center text-[7px] pt-1 text-stone-400";
-        footerArea.innerHTML = `
-          <div>© 2026 Edwin Inc. All rights reserved.</div>
-          <div class="font-mono font-bold text-stone-700">1</div>
-        `;
-      }
+    // Regex safely replaces existing <w:pgMar ... />
+    if (docXml.includes("<w:pgMar")) {
+      docXml = docXml.replace(/<w:pgMar[^>]*\/>/g, pgMarTag);
     }
 
-    // File handlers
-    function handleDocxSelect(e) {
-      const file = e.target.files[0];
-      if (file) {
-        uploadedDocxName = file.name;
-        document.getElementById('docxFileName').innerText = file.name;
-        document.getElementById('docxFileName').className = "text-[11px] text-accent font-semibold line-clamp-1";
-        showToast(`Document uploaded: ${file.name}`);
-      }
+    // Attach Header & Footer to <w:sectPr>
+    if (docXml.includes("<w:sectPr")) {
+      // Remove any previous conflicting header/footer references
+      docXml = docXml.replace(/<w:headerReference[^>]*\/>/g, "");
+      docXml = docXml.replace(/<w:footerReference[^>]*\/>/g, "");
+
+      // Prepend references inside <w:sectPr>
+      docXml = docXml.replace(/<w:sectPr([^>]*)>/, `<w:sectPr$1>${headerRef}${footerRef}`);
+    } else {
+      // If sectPr is missing, wrap it inside w:body
+      docXml = docXml.replace('</w:body>', `<w:sectPr>${headerRef}${footerRef}${pgMarTag}</w:sectPr></w:body>`);
     }
 
-    function handleLogoSelect(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          uploadedLogoUrl = evt.target.result;
-          document.getElementById('logoFileName').innerText = file.name;
-          document.getElementById('logoIconContainer').innerHTML = `<img src="${uploadedLogoUrl}" class="w-8 h-8 object-contain rounded" />`;
-          updateLivePreview();
-          showToast("New Journal Logo loaded");
-        }
-        reader.readAsDataURL(file);
-      }
-    }
+    docxZip.file("word/document.xml", docXml);
 
-    // AI prompt suggestion
-    function applyAiPromptSuggestion() {
-      const promptVal = document.getElementById('aiPrompt').value;
-      if (!promptVal.trim()) {
-        document.getElementById('aiPrompt').value = "Header ko Classic Academic style me rakho, top margin 3.43 cm aur divider line subtle rakho.";
-      }
-      selectLayout('academic', document.querySelectorAll('.template-card')[0]);
-      showToast("AI suggestion applied to presets and margins!");
-    }
+    // 5. Generate Safe, Clean File Blob
+    const updatedContent = await docxZip.generateAsync({
+      type: "blob",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      compression: "DEFLATE"
+    });
 
-    // Process & Download flow
-    function startProcessing() {
-      const modal = document.getElementById('processModal');
-      const loadingState = document.getElementById('modalLoadingState');
-      const successState = document.getElementById('modalSuccessState');
-      const progressBar = document.getElementById('progressBar');
-      const progressText = document.getElementById('modalProgressText');
+    // Save File
+    const originalName = currentFile.name.replace(/\.[^/.]+$/, "");
+    saveAs(updatedContent, `${originalName}_Formatted.docx`);
 
-      loadingState.classList.remove('hidden');
-      successState.classList.add('hidden');
-      modal.classList.remove('hidden');
+    statusBox.className = 'status-alert alert alert-success';
+    statusBox.innerText = '✅ फ़ाइल सफलतापूर्वक अपडेट हो गई है और डाउनलोड हो चुकी है! MS Word में सुरक्षित रूप से खुलेगी।';
 
-      let progress = 10;
-      progressBar.style.width = '10%';
+  } catch (error) {
+    console.error(error);
+    statusBox.className = 'status-alert alert alert-danger';
+    statusBox.innerText = 'फ़ाइल प्रोसेस करने में त्रुटि आई: ' + error.message;
+  }
+}
+</script>
 
-      const interval = setInterval(() => {
-        progress += 25;
-        progressBar.style.width = `${progress}%`;
-        
-        if (progress === 35) {
-          progressText.innerText = "Parsing XML sections & replacing headers/footers...";
-        } else if (progress === 60) {
-          progressText.innerText = "Applying standard margins (Top: 3.43 cm, Bottom: 1.9 cm)...";
-        } else if (progress === 85) {
-          progressText.innerText = "Rebuilding tables and font hierarchy safely...";
-        }
-
-        if (progress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            loadingState.classList.add('hidden');
-            successState.classList.remove('hidden');
-          }, 400);
-        }
-      }, 350);
-    }
-
-    function closeModal() {
-      document.getElementById('processModal').classList.add('hidden');
-    }
-
-    function downloadDocxFile() {
-      const docName = uploadedDocxName ? `Automated_${uploadedDocxName}` : "Processed_Journal_Paper.docx";
-      // Generate clean mock file download
-      const element = document.createElement('a');
-      const mockDocxContent = "PK\x03\x04EdwinIncorporation_Automated_Docx_Content";
-      const blob = new Blob([mockDocxContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      element.href = URL.createObjectURL(blob);
-      element.download = docName;
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-      closeModal();
-      showToast(`Downloading: ${docName}`);
-    }
-
-    function resetDefaults() {
-      setMargins(3.43, 1.9, 1.6, 1.6, document.querySelectorAll('.preset-btn')[0]);
-      document.getElementById('journalTitle').value = "American Journal of Integrative and Preventive Medicine";
-      document.getElementById('journalVolume').value = "Volume 01";
-      document.getElementById('journalIssue').value = "Issue 01";
-      document.getElementById('journalIssn').value = "3070-6025";
-      document.getElementById('journalUrl').value = "https://uscse.com/uscse/index.php/AJIPM/home";
-      selectLayout('academic', document.querySelectorAll('.template-card')[0]);
-      showToast("Defaults restored successfully");
-    }
-
-    // Simple toast notification
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMessage');
-      toastMsg.innerText = msg;
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 2600);
-    }
-  </script>
 </body>
 </html>
