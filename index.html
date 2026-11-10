@@ -1,579 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edwin Incorporation — Journal Template & AI Design Portal</title>
-
-  <!-- JSZip & FileSaver -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      margin: 0;
-      padding: 30px 15px;
-      background-color: #081426;
-      background-image: 
-        linear-gradient(rgba(8, 20, 38, 0.65), rgba(8, 20, 38, 0.65)), 
-        url('bg.jpg'),
-        url('bg-banner.jpg');
-      background-repeat: no-repeat;
-      background-position: center center;
-      background-attachment: fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 680px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-top: 5px solid #0056b3;
-    }
-
-    .brand-header {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      background: #ffffff !important;
-      padding: 12px 18px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-    }
-
-    .brand-logo {
-      width: 58px !important;
-      height: 58px !important;
-      max-width: 58px !important;
-      max-height: 58px !important;
-      object-fit: contain;
-      display: inline-block;
-    }
-
-    .brand-title {
-      margin: 0;
-      color: #003366;
-      font-size: 22px;
-      font-weight: 800;
-      line-height: 1.1;
-    }
-
-    .brand-sub {
-      margin: 3px 0 0 0;
-      color: #475569;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    
-    .drop-zone {
-      border: 2px dashed rgba(255, 255, 255, 0.6);
-      border-radius: 10px;
-      padding: 15px;
-      text-align: center;
-      background: rgba(255, 255, 255, 0.92);
-      cursor: pointer;
-      margin-bottom: 12px;
-      transition: all 0.2s;
-    }
-
-    .drop-zone.active {
-      border-color: #f5a623;
-      background: #ffffff;
-    }
-
-    .drop-zone p {
-      margin: 0;
-      font-size: 13.5px;
-      color: #0f172a;
-      font-weight: 700;
-    }
-
-    .drop-zone span {
-      display: block;
-      font-size: 11px;
-      color: #475569;
-      margin-top: 3px;
-    }
-
-    .full-row {
-      margin-bottom: 12px;
-    }
-
-    .grid-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .input-group label {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 700;
-      margin-bottom: 5px;
-      color: #ffffff;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-    }
-
-    .input-group input, .input-group textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      background: #ffffff;
-      border-radius: 6px;
-      font-size: 13.5px;
-      outline: none;
-      color: #0f172a;
-    }
-
-    .input-group input:focus, .input-group textarea:focus { 
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
-    }
-
-    .ai-box {
-      background: rgba(2, 132, 199, 0.15);
-      border: 1px dashed #38bdf8;
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-
-    .ai-box label {
-      color: #38bdf8;
-      font-size: 13px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .ai-box textarea {
-      width: 100%;
-      height: 65px;
-      resize: vertical;
-      font-size: 13px;
-      border-radius: 6px;
-      padding: 8px 10px;
-      border: 1px solid #94a3b8;
-    }
-
-    .btn-update {
-      width: 100%;
-      padding: 14px;
-      background: #0284c7;
-      color: #ffffff;
-      font-size: 15px;
-      font-weight: 800;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 10px;
-      transition: background 0.2s;
-      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
-    }
-
-    .btn-update:hover { background: #0369a1; }
-    
-    .status-msg {
-      margin-top: 10px;
-      font-size: 13px;
-      text-align: center;
-      color: #38bdf8;
-      font-weight: 600;
-    }
-  </style>
-</head>
-<body>
-
-<div class="card">
-  <!-- Brand Header -->
-  <div class="brand-header">
-    <img src="logo.png" alt="Edwin Incorporation" class="brand-logo" width="58" height="58" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
-    <div>
-      <h2 class="brand-title">Edwin Incorporation</h2>
-      <p class="brand-sub">Research Paper Header &amp; Footer Automation Portal</p>
+<!-- Custom Margin Settings Card -->
+<div class="card p-3 mb-3 border rounded shadow-sm bg-white">
+  <h6 class="fw-bold mb-2">📐 Page Margins (in cm)</h6>
+  <div class="row g-2">
+    <div class="col-6 col-md-3">
+      <label class="form-label small text-muted">Top (cm)</label>
+      <input type="number" step="0.01" id="marginTop" class="form-control form-control-sm" value="3.43">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label small text-muted">Bottom (cm)</label>
+      <input type="number" step="0.01" id="marginBottom" class="form-control form-control-sm" value="1.9">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label small text-muted">Left (cm)</label>
+      <input type="number" step="0.01" id="marginLeft" class="form-control form-control-sm" value="1.6">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label small text-muted">Right (cm)</label>
+      <input type="number" step="0.01" id="marginRight" class="form-control form-control-sm" value="1.6">
     </div>
   </div>
-
-  <!-- 1. OLD FILE DROP / SELECT -->
-  <div class="drop-zone" id="docDropZone" onclick="document.getElementById('docFile').click()">
-    <p id="docStatus">📁 1. OLD File Drag &amp; Drop Karein (.docx)</p>
-    <span>File ka table format aur layout safe rahega</span>
-    <input type="file" id="docFile" accept=".docx" style="display: none;">
-  </div>
-
-  <!-- 2. NEW LOGO DROP / SELECT -->
-  <div class="drop-zone" id="logoDropZone" onclick="document.getElementById('logoFile').click()">
-    <p id="logoStatus">🖼 2. NEW Journal Logo Drag &amp; Drop Karein (Image)</p>
-    <span>Purane logo ki jagah NEW logo replace ho jayega (Optional)</span>
-    <input type="file" id="logoFile" accept="image/*" style="display: none;">
-  </div>
-
-  <!-- 3. AI DESIGN ASSISTANT -->
-  <div class="ai-box">
-    <label>✨ AI Design Assistant (Hindi ya Hinglish me design batayein):</label>
-    <textarea id="valPrompt" placeholder="e.g. Title red kar dena or title font size 16 kar dena, font Arial Black karo..."></textarea>
-  </div>
-
-  <!-- 4. JOURNAL TITLE -->
-  <div class="full-row">
-    <div class="input-group">
-      <label>NEW Journal Title (Optional):</label>
-      <input type="text" id="valTitle" placeholder="e.g. European Journal of Sustainable Agriculture">
-    </div>
-  </div>
-
-  <!-- 5. BASIC METADATA FIELDS -->
-  <div class="grid-row">
-    <div class="input-group">
-      <label>NEW Volume:</label>
-      <input type="text" id="valVol" placeholder="e.g. 08">
-    </div>
-    <div class="input-group">
-      <label>NEW Issue:</label>
-      <input type="text" id="valIssue" placeholder="e.g. 03">
-    </div>
-  </div>
-
-  <div class="grid-row">
-    <div class="input-group">
-      <label>NEW ISSN (Optional):</label>
-      <input type="text" id="valISSN" placeholder="e.g. 2589-2589">
-    </div>
-    <div class="input-group">
-      <label>NEW URL (Optional):</label>
-      <input type="text" id="valURL" placeholder="https://...">
-    </div>
-  </div>
-
-  <button class="btn-update" id="genBtn" onclick="processOldDocx()">Generate Updated MS Word (.docx)</button>
-  <div class="status-msg" id="statusMsg"></div>
 </div>
 
-<script>
-  let docBuffer = null;
-  let logoBuffer = null;
+<!-- Smart Header/Footer Presets Selection (3-4 Best Options) -->
+<div class="card p-3 mb-3 border rounded shadow-sm bg-white">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h6 class="fw-bold mb-0">✨ Auto Header & Footer Layouts (Select 1)</h6>
+    <span class="badge bg-primary">Auto Generated</span>
+  </div>
+  <p class="small text-muted mb-2">अगर आपके पास पुराना हेडर/फ़ूटर नहीं है, तो नीचे से कोई एक स्टाइल चुनें:</p>
+  
+  <div class="row g-2" id="presetContainer">
+    <!-- Preset 1 -->
+    <div class="col-md-6">
+      <div class="preset-card p-2 border rounded active" onclick="selectPreset(1, this)">
+        <input type="radio" name="headerPreset" value="1" id="p1" checked class="me-2">
+        <label for="p1" class="fw-semibold small d-inline">1. Classic Academic Dual-Line</label>
+        <div class="preset-preview small text-muted mt-1">
+          <b>Header:</b> Left: Logo + Journal Title | Right: Vol, Issue & ISSN (नीचे पतली लाइन)<br>
+          <b>Footer:</b> Left: URL / Copyright | Right: Page [X] of [Y]
+        </div>
+      </div>
+    </div>
 
-  function setupDrop(dropId, inputId, statusId, type) {
-    const dropZone = document.getElementById(dropId);
-    const input = document.getElementById(inputId);
+    <!-- Preset 2 -->
+    <div class="col-md-6">
+      <div class="preset-card p-2 border rounded" onclick="selectPreset(2, this)">
+        <input type="radio" name="headerPreset" value="2" id="p2" class="me-2">
+        <label for="p2" class="fw-semibold small d-inline">2. Modern Minimalist</label>
+        <div class="preset-preview small text-muted mt-1">
+          <b>Header:</b> Center: Journal Name (Bold Uppercase) | Sub-header: ISSN & Year<br>
+          <b>Footer:</b> Center: Page Number with side dashes (— 1 —)
+        </div>
+      </div>
+    </div>
 
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('active'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('active');
-      if (e.dataTransfer.files.length) {
-        input.files = e.dataTransfer.files;
-        handleFile(input.files[0], type, statusId);
-      }
-    });
+    <!-- Preset 3 -->
+    <div class="col-md-6">
+      <div class="preset-card p-2 border rounded" onclick="selectPreset(3, this)">
+        <input type="radio" name="headerPreset" value="3" id="p3" class="me-2">
+        <label for="p3" class="fw-semibold small d-inline">3. Institutional Two-Box Grid</label>
+        <div class="preset-preview small text-muted mt-1">
+          <b>Header:</b> Top Bar with Journal Title & Logo in clean table grid layout<br>
+          <b>Footer:</b> Left: Publication Website | Center: Indexed Info | Right: Page #
+        </div>
+      </div>
+    </div>
 
-    input.addEventListener('change', () => {
-      if (input.files.length) handleFile(input.files[0], type, statusId);
-    });
-  }
-
-  async function handleFile(file, type, statusId) {
-    if (type === 'doc') {
-      docBuffer = await file.arrayBuffer();
-      document.getElementById(statusId).innerText = "✔ " + file.name + " (Template Loaded)";
-      document.getElementById(statusId).style.color = "#15803d";
-    } else {
-      logoBuffer = await file.arrayBuffer();
-      document.getElementById(statusId).innerText = "✔ " + file.name + " (New Logo Selected)";
-      document.getElementById(statusId).style.color = "#15803d";
-    }
-  }
-
-  setupDrop('docDropZone', 'docFile', 'docStatus', 'doc');
-  setupDrop('logoDropZone', 'logoFile', 'logoStatus', 'logo');
-
-  function xmlSafe(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  // Smart Parser for Font, Color, Size, Italic & Bold
-  function parseAIPromptSmart(prompt) {
-    const p = prompt.toLowerCase();
-    
-    // 1. Font detection
-    let font = "";
-    if (p.includes("arial black")) font = "Arial Black";
-    else if (p.includes("times")) font = "Times New Roman";
-    else if (p.includes("arial")) font = "Arial";
-    else if (p.includes("segoe")) font = "Segoe UI Black";
-    else if (p.includes("georgia")) font = "Georgia";
-    else if (p.includes("calibri")) font = "Calibri";
-
-    // 2. Remove font names so "Arial Black" doesn't falsely trigger black color
-    let colorSearch = p.replace("arial black", "").replace("segoe ui black", "");
-
-    // 3. Color detection
-    let color = "";
-    if (colorSearch.includes("yellow") || colorSearch.includes("peela")) {
-      color = "FFD700"; // Rich Golden Yellow
-    } else if (colorSearch.includes("gold") || colorSearch.includes("golden") || colorSearch.includes("sonehra")) {
-      color = "C9A227";
-    } else if (colorSearch.includes("red") || colorSearch.includes("lal")) {
-      color = "C00000"; // Standard Red
-    } else if (colorSearch.includes("navy") || colorSearch.includes("dark blue") || colorSearch.includes("gehra neela")) {
-      color = "1F497D";
-    } else if (colorSearch.includes("blue") || colorSearch.includes("neela")) {
-      color = "003366";
-    } else if (colorSearch.includes("green") || colorSearch.includes("hara")) {
-      color = "008000";
-    } else if (colorSearch.includes("black") || colorSearch.includes("kala")) {
-      color = "000000";
-    }
-
-    // 4. Font Size detection (e.g. "size 16", "font size 16", "16 pt")
-    let halfPoints = null;
-    let sizeMatch = p.match(/(?:font\s*)?size[:\s]*([0-9]{1,2})/i) || p.match(/([0-9]{1,2})\s*(?:pt|point)/i);
-    if (sizeMatch && sizeMatch[1]) {
-      let pt = parseInt(sizeMatch[1]);
-      if (pt > 6 && pt < 72) {
-        halfPoints = pt * 2; // Word XML uses half-points (16pt = 32)
-      }
-    }
-
-    let italic = p.includes("italic") || p.includes("tircha");
-    let bold = p.includes("bold") || p.includes("mota");
-
-    return { font, color, halfPoints, italic, bold };
-  }
-
-  async function processOldDocx() {
-    if (!docBuffer) {
-      alert("Kripya pehle apni purani template file (.docx) drop ya select karein!");
-      return;
-    }
-
-    const btn = document.getElementById('genBtn');
-    const statusMsg = document.getElementById('statusMsg');
-    btn.disabled = true;
-    btn.innerText = "Processing Document...";
-    statusMsg.innerText = "";
-
-    try {
-      const zip = await JSZip.loadAsync(docBuffer);
-
-      // 1. Logo replace in word/media
-      if (logoBuffer) {
-        const media = zip.folder("word/media");
-        if (media) {
-          media.forEach((path) => {
-            zip.file("word/media/" + path, logoBuffer);
-          });
-        }
-      }
-
-      // 2. Parse Prompt
-      const promptText = document.getElementById('valPrompt').value.trim();
-      let aiResult = { font: "", color: "", halfPoints: null, italic: false, bold: false };
-      
-      if (promptText) {
-        aiResult = parseAIPromptSmart(promptText);
-      }
-
-      const title = document.getElementById('valTitle').value.trim();
-      const vol = document.getElementById('valVol').value.trim();
-      const issue = document.getElementById('valIssue').value.trim();
-      const issn = document.getElementById('valISSN').value.trim();
-      const url = document.getElementById('valURL').value.trim();
-
-      const targetFont = aiResult.font;
-      const targetColor = aiResult.color;
-      const targetHalfPoints = aiResult.halfPoints;
-      const makeItalic = aiResult.italic;
-      const makeBold = aiResult.bold;
-
-      // HEADER & FOOTER SABHI XML FILES SCAN KARNA
-      const targetXmls = [];
-      zip.forEach((path) => {
-        if ((path.startsWith("word/header") || path.startsWith("word/footer")) && path.endsWith(".xml")) {
-          targetXmls.push(path);
-        }
-      });
-
-      for (let path of targetXmls) {
-        let text = await zip.file(path).async("string");
-
-        // A. JOURNAL TITLE & AI STYLING REPLACEMENT
-        if (path.includes("header")) {
-          text = text.replace(/<w:txbxContent>[\s\S]*?<\/w:txbxContent>/gi, (tbBlock) => {
-            if (!/Volume|ISSN|http|www/i.test(tbBlock)) {
-              let modifiedBlock = tbBlock;
-              
-              // Title text replace
-              if (title) {
-                let first = true;
-                modifiedBlock = modifiedBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
-                  if (first) {
-                    first = false;
-                    return `<w:t>${xmlSafe(title)}</w:t>`;
-                  }
-                  return `<w:t></w:t>`;
-                });
-              }
-
-              // Font replace (Ascii, hAnsi, Cs sabhi ko update karega)
-              if (targetFont) {
-                modifiedBlock = modifiedBlock.replace(/w:ascii="[^"]*"/gi, `w:ascii="${targetFont}"`);
-                modifiedBlock = modifiedBlock.replace(/w:hAnsi="[^"]*"/gi, `w:hAnsi="${targetFont}"`);
-                modifiedBlock = modifiedBlock.replace(/w:cs="[^"]*"/gi, `w:cs="${targetFont}"`);
-              }
-
-              // Color replace (Word ka themeColor hatakar direct color apply karega)
-              if (targetColor) {
-                modifiedBlock = modifiedBlock.replace(/<w:color\s+[^>]*\/>/gi, `<w:color w:val="${targetColor}"/>`);
-              }
-
-              // Font Size replace (16pt -> 32 half-points)
-              if (targetHalfPoints) {
-                modifiedBlock = modifiedBlock.replace(/<w:sz\s+[^>]*\/>/gi, `<w:sz w:val="${targetHalfPoints}"/>`);
-                modifiedBlock = modifiedBlock.replace(/<w:szCs\s+[^>]*\/>/gi, `<w:szCs w:val="${targetHalfPoints}"/>`);
-              }
-
-              // Italic
-              if (makeItalic && !modifiedBlock.includes('<w:i/>')) {
-                modifiedBlock = modifiedBlock.replace(/<w:rPr>/gi, '<w:rPr><w:i/>');
-              }
-
-              // Bold
-              if (makeBold && !modifiedBlock.includes('<w:b/>')) {
-                modifiedBlock = modifiedBlock.replace(/<w:rPr>/gi, '<w:rPr><w:b/>');
-              }
-
-              return modifiedBlock;
-            }
-            return tbBlock;
-          });
-        }
-
-        // B. Volume & Issue update
-        if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
-        if (issue) text = text.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(issue)}`);
-
-        // C. ISSN COMPLETE SWEEP
-        if (issn) {
-          text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
-            if (/ISSN/i.test(pBlock)) {
-              let first = true;
-              return pBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
-                if (first) {
-                  first = false;
-                  return `<w:t>E-ISSN: ${xmlSafe(issn)}</w:t>`;
-                }
-                return `<w:t></w:t>`;
-              });
-            }
-            return pBlock;
-          });
-          text = text.replace(/<w:t\b[^>]*>\s*-0120\s*<\/w:t>/gi, `<w:t></w:t>`);
-        }
-
-        // D. FOOTER URL & EXACT SCHEMA TAB REPLACEMENT
-        if (path.includes("footer")) {
-          text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
-        }
-
-        if (url) {
-          text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
-            let replaced = false;
-            return match.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
-              if (!replaced) {
-                replaced = true;
-                return `<w:t>${xmlSafe(url)}</w:t>`;
-              }
-              return `<w:t></w:t>`;
-            });
-          });
-
-          text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
-            if (/https?:\/\/|njournal|uscse|ejournal|index\.php/i.test(pBlock) && !pBlock.includes('<w:hyperlink')) {
-              let replaced = false;
-              return pBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, (tTag) => {
-                if (/https?:\/\/|njournal|uscse|ejournal|index\.php/i.test(tTag)) {
-                  if (!replaced) {
-                    replaced = true;
-                    return `<w:t>${xmlSafe(url)}</w:t>`;
-                  }
-                  return `<w:t></w:t>`;
-                }
-                return tTag;
-              });
-            }
-            return pBlock;
-          });
-
-          text = text.replace(/<w:t\b[^>]*>\s*njournal\.com[^<]*<\/w:t>/gi, `<w:t></w:t>`);
-          text = text.replace(/<w:t\b[^>]*>\s*\/aij\/[^<]*<\/w:t>/gi, `<w:t></w:t>`);
-          text = text.replace(/<w:t\b[^>]*>\s*\/ejsa[^<]*<\/w:t>/gi, `<w:t></w:t>`);
-          text = text.replace(/<w:t xml:space="preserve">\s*home<\/w:t>/gi, `<w:t></w:t>`);
-        }
-
-        zip.file(path, text);
-      }
-
-      // RELATIONSHIPS (_rels) FOR EXTERNAL HYPERLINKS
-      const relFiles = [];
-      zip.forEach((path) => {
-        if ((path.startsWith("word/_rels/header") || path.startsWith("word/_rels/footer")) && path.endsWith(".rels")) {
-          relFiles.push(path);
-        }
-      });
-
-      for (let rPath of relFiles) {
-        if (url) {
-          let relText = await zip.file(rPath).async("string");
-          relText = relText.replace(/Target="(https?:\/\/[^"]+)"/gi, (match, currentTarget) => {
-            if (currentTarget.includes("schemas.openxmlformats") || currentTarget.includes("w3.org") || currentTarget.includes("microsoft.com")) {
-              return match;
-            }
-            return `Target="${xmlSafe(url)}"`;
-          });
-          zip.file(rPath, relText);
-        }
-      }
-
-      const outputBlob = await zip.generateAsync({
-        type: "blob",
-        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        compression: "DEFLATE"
-      });
-
-      saveAs(outputBlob, "Updated_Journal_Paper.docx");
-      statusMsg.innerText = "✔ Document सफलतापूर्वक डाउनलोड हो गया!";
-
-    } catch (e) {
-      alert("Error: " + e.message);
-    } finally {
-      btn.disabled = false;
-      btn.innerText = "Generate Updated MS Word (.docx)";
-    }
-  }
-</script>
-
-</body>
-</html>
+    <!-- Preset 4 -->
+    <div class="col-md-6">
+      <div class="preset-card p-2 border rounded" onclick="selectPreset(4, this)">
+        <input type="radio" name="headerPreset" value="4" id="p4" class="me-2">
+        <label for="p4" class="fw-semibold small d-inline">4. Compact Research (IEEE/Springer Style)</label>
+        <div class="preset-preview small text-muted mt-1">
+          <b>Header:</b> Italic small font Journal Title, Vol/Issue on Right edge<br>
+          <b>Footer:</b> Running Title Left, Single Page Number Right
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
