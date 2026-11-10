@@ -9,7 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- JSZip & FileSaver for safe .docx handling -->
+  <!-- JSZip & FileSaver -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
@@ -50,7 +50,7 @@
     .upload-zone {
       border: 2px dashed #d6d3d1;
       border-radius: 10px;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
       background: #fafaf9;
       cursor: pointer;
@@ -76,7 +76,6 @@
       outline: none;
     }
 
-    /* Template Cards */
     .template-card {
       border: 1.5px solid #e2e8f0;
       border-radius: 10px;
@@ -119,33 +118,53 @@
       padding: 12px;
       font-size: 0.9rem;
     }
+
+    .logo-preview-img {
+      max-height: 50px;
+      max-width: 150px;
+      object-fit: contain;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
 <div class="main-container">
   
-  <!-- Header -->
   <div class="text-center mb-4">
     <h3 class="fw-bold mb-1">Research Paper Header & Footer Automation</h3>
     <p class="text-muted small">Edwin Incorporation Automated Publishing Engine</p>
   </div>
 
-  <!-- 1. Document Upload -->
+  <!-- 1. DOCX Upload -->
   <div class="custom-card">
-    <div class="section-title">📂 1. Select Word Document</div>
+    <div class="section-title">📂 1. Select Word Document (.docx)</div>
     <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
       <input type="file" id="fileInput" accept=".docx" style="display: none;" onchange="handleFile(this)">
       <div id="fileUploadText" class="fw-medium text-secondary">
         Click to select or drag & drop <b>.docx</b> file here
       </div>
-      <div class="text-muted small mt-1">टेबल, पैराग्राफ और फॉन्ट फॉर्मेटिंग 100% सुरक्षित रहेगी</div>
+      <div class="text-muted small mt-1">टेबल, पैराग्राफ और फॉन्ट फॉर्मेटिंग सुरक्षित रहेगी</div>
     </div>
   </div>
 
-  <!-- 2. Margins (Preset to your exact specifications) -->
+  <!-- 2. Logo Upload -->
   <div class="custom-card">
-    <div class="section-title">📐 2. Page Margins (in cm)</div>
+    <div class="section-title">🖼️ 2. Journal Logo Drag & Drop (Optional)</div>
+    <div class="upload-zone" onclick="document.getElementById('logoInput').click()">
+      <input type="file" id="logoInput" accept="image/png, image/jpeg" style="display: none;" onchange="handleLogo(this)">
+      <div id="logoUploadText" class="fw-medium text-secondary">
+        Click to select or drag & drop <b>Journal Logo (PNG / JPG)</b>
+      </div>
+      <div class="text-muted small mt-1">अगर लोगो नहीं है, तो खाली छोड़ सकते हैं</div>
+      <center><img id="logoPreview" class="logo-preview-img" alt="Logo Preview"></center>
+    </div>
+  </div>
+
+  <!-- 3. Margins -->
+  <div class="custom-card">
+    <div class="section-title">📐 3. Page Margins (in cm)</div>
     <div class="row g-3">
       <div class="col-6 col-md-3">
         <label class="form-label small fw-semibold">Top Margin (cm)</label>
@@ -166,9 +185,9 @@
     </div>
   </div>
 
-  <!-- 3. Metadata Inputs -->
+  <!-- 4. Journal Metadata -->
   <div class="custom-card">
-    <div class="section-title">📝 3. Journal Details & Metadata</div>
+    <div class="section-title">📝 4. Journal Details & Metadata</div>
     <div class="row g-3">
       <div class="col-md-12">
         <label class="form-label small fw-semibold">Journal Title</label>
@@ -193,39 +212,36 @@
     </div>
   </div>
 
-  <!-- 4. Smart Template Options (अगर पुराना हेडर न हो तब भी काम करेगा) -->
+  <!-- 5. Choose Header/Footer Design -->
   <div class="custom-card">
-    <div class="section-title">✨ 4. Choose Header & Footer Design</div>
+    <div class="section-title">✨ 5. Choose Header & Footer Design</div>
     <div class="row g-3">
       
-      <!-- Option 1 -->
       <div class="col-md-6">
         <div class="template-card active" onclick="pickDesign(1, this)">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="fw-bold">1. Classic Academic Dual-Line</span>
-            <span class="badge bg-dark">Popular</span>
+            <span class="badge bg-dark">Best with Logo</span>
           </div>
           <div class="small text-muted">
-            <b>Header:</b> Left Title | Right Vol, Issue, ISSN (Divider line के साथ)<br>
+            <b>Header:</b> Logo + Left Title | Right Vol, Issue, ISSN (Bottom Divider Line)<br>
             <b>Footer:</b> Left URL / Rights | Right Page Numbers
           </div>
         </div>
       </div>
 
-      <!-- Option 2 -->
       <div class="col-md-6">
         <div class="template-card" onclick="pickDesign(2, this)">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="fw-bold">2. Modern Minimalist</span>
           </div>
           <div class="small text-muted">
-            <b>Header:</b> Centered Bold Title + ISSN/Volume सब-हेडिंग<br>
+            <b>Header:</b> Center Bold Title + Volume/ISSN sub-line<br>
             <b>Footer:</b> Center Page Number (— 1 —)
           </div>
         </div>
       </div>
 
-      <!-- Option 3 -->
       <div class="col-md-6">
         <div class="template-card" onclick="pickDesign(3, this)">
           <div class="d-flex justify-content-between align-items-center mb-1">
@@ -238,7 +254,6 @@
         </div>
       </div>
 
-      <!-- Option 4 -->
       <div class="col-md-6">
         <div class="template-card" onclick="pickDesign(4, this)">
           <div class="d-flex justify-content-between align-items-center mb-1">
@@ -254,9 +269,9 @@
     </div>
   </div>
 
-  <!-- Process Button -->
+  <!-- Action Button -->
   <button class="process-btn" id="generateBtn" onclick="processDocxFile()">
-    ⚡ Apply Headers, Margins & Download Safe .DOCX
+    ⚡ Apply Headers, Logo, Margins & Download Safe .DOCX
   </button>
 
   <div id="statusBox" class="status-alert"></div>
@@ -265,6 +280,8 @@
 
 <script>
 let currentFile = null;
+let currentLogoFile = null;
+let logoArrayBuffer = null;
 let selectedDesign = 1;
 
 function pickDesign(id, el) {
@@ -276,18 +293,37 @@ function pickDesign(id, el) {
 function handleFile(input) {
   if (input.files && input.files[0]) {
     currentFile = input.files[0];
-    document.getElementById('fileUploadText').innerHTML = `✅ Selected: <b>${currentFile.name}</b>`;
+    document.getElementById('fileUploadText').innerHTML = `✅ Selected DOCX: <b>${currentFile.name}</b>`;
   }
 }
 
-// Convert CM to Word DXA (1 cm = 567 dxa)
+function handleLogo(input) {
+  if (input.files && input.files[0]) {
+    currentLogoFile = input.files[0];
+    document.getElementById('logoUploadText').innerHTML = `✅ Selected Logo: <b>${currentLogoFile.name}</b>`;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.getElementById('logoPreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(currentLogoFile);
+
+    const bufferReader = new FileReader();
+    bufferReader.onload = function(e) {
+      logoArrayBuffer = e.target.result;
+    };
+    bufferReader.readAsArrayBuffer(currentLogoFile);
+  }
+}
+
 function cmToDxa(val, defaultVal) {
   let num = parseFloat(val);
   if (isNaN(num)) num = defaultVal;
   return Math.round(num * 567);
 }
 
-// Safe Word XML String Escaper
 function escXml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -311,32 +347,76 @@ async function processDocxFile() {
     const zip = new JSZip();
     const docxZip = await zip.loadAsync(currentFile);
 
-    // Margins (in dxa)
     const topDxa = cmToDxa(document.getElementById('mTop').value, 3.43);
     const bottomDxa = cmToDxa(document.getElementById('mBottom').value, 1.9);
     const leftDxa = cmToDxa(document.getElementById('mLeft').value, 1.6);
     const rightDxa = cmToDxa(document.getElementById('mRight').value, 1.6);
 
-    // Metadata
     const title = escXml(document.getElementById('jTitle').value);
     const vol = escXml(document.getElementById('jVol').value);
     const issue = escXml(document.getElementById('jIssue').value);
     const issn = escXml(document.getElementById('jIssn').value);
     const url = escXml(document.getElementById('jUrl').value);
 
-    // Generate Custom XML based on selected design
+    let hasLogo = !!logoArrayBuffer;
+    let logoExt = "png";
+    if (currentLogoFile && currentLogoFile.name.toLowerCase().endsWith(".jpg")) logoExt = "jpeg";
+
+    if (hasLogo) {
+      docxZip.file(`word/media/headerLogo.${logoExt}`, logoArrayBuffer);
+    }
+
+    // Header relationships XML for Logo support
+    let headerRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`;
+    if (hasLogo) {
+      headerRelsXml += `<Relationship Id="rIdLogo1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/headerLogo.${logoExt}"/>`;
+    }
+    headerRelsXml += `</Relationships>`;
+    docxZip.file("word/_rels/headerCustom1.xml.rels", headerRelsXml);
+
+    // Drawing DrawingML XML for Logo
+    const logoDrawingXml = hasLogo ? `
+      <w:r>
+        <w:drawing>
+          <wp:inline distT="0" distB="0" distL="0" distR="120000" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">
+            <wp:extent cx="1080000" cy="450000"/>
+            <wp:docPr id="1" name="HeaderLogo"/>
+            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                  <pic:nvPicPr>
+                    <pic:cNvPr id="0" name="Logo"/>
+                    <pic:cNvPicPr/>
+                  </pic:nvPicPr>
+                  <pic:blipFill>
+                    <a:blip r:embed="rIdLogo1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
+                    <a:stretch><a:fillRect/></a:stretch>
+                  </pic:blipFill>
+                  <pic:spPr>
+                    <a:xfrm><a:off x="0" y="0"/><a:ext cx="1080000" cy="450000"/></a:xfrm>
+                    <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+                  </pic:spPr>
+                </pic:pic>
+              </a:graphicData>
+            </a:graphic>
+          </wp:inline>
+        </w:drawing>
+      </w:r>` : '';
+
     let headerXml = "";
     let footerXml = "";
 
     if (selectedDesign === 1) {
       // Classic Academic
       headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
         <w:p>
           <w:pPr>
             <w:pBdr><w:bottom w:val="single" w:sz="6" w:space="4" w:color="CCCCCC"/></w:pBdr>
             <w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs>
           </w:pPr>
+          ${logoDrawingXml}
           <w:r><w:rPr><w:b/><w:sz w:val="18"/></w:rPr><w:t>${title}</w:t></w:r>
           <w:r><w:tab/><w:rPr><w:color w:val="666666"/><w:sz w:val="16"/></w:rPr><w:t>${vol}, ${issue} | ISSN: ${issn}</w:t></w:r>
         </w:p>
@@ -356,9 +436,10 @@ async function processDocxFile() {
     } else if (selectedDesign === 2) {
       // Modern Minimalist
       headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
         <w:p>
           <w:pPr><w:jc w:val="center"/></w:pPr>
+          ${logoDrawingXml}
           <w:r><w:rPr><w:b/><w:sz w:val="18"/></w:rPr><w:t>${title.toUpperCase()}</w:t></w:r>
         </w:p>
         <w:p>
@@ -379,9 +460,10 @@ async function processDocxFile() {
     } else if (selectedDesign === 3) {
       // Springer / IEEE
       headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
         <w:p>
           <w:pPr><w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs></w:pPr>
+          ${logoDrawingXml}
           <w:r><w:rPr><w:i/><w:sz w:val="16"/><w:color w:val="555555"/></w:rPr><w:t>${title}</w:t></w:r>
           <w:r><w:tab/><w:rPr><w:sz w:val="16"/><w:color w:val="555555"/></w:rPr><w:t>ISSN ${issn}</w:t></w:r>
         </w:p>
@@ -399,7 +481,7 @@ async function processDocxFile() {
     } else {
       // Institutional Box
       headerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+      <w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
         <w:p>
           <w:pPr>
             <w:pBdr>
@@ -408,6 +490,7 @@ async function processDocxFile() {
             </w:pBdr>
             <w:tabs><w:tab w:val="right" w:pos="9072"/></w:tabs>
           </w:pPr>
+          ${logoDrawingXml}
           <w:r><w:rPr><w:b/><w:sz w:val="18"/></w:rPr><w:t>${title}</w:t></w:r>
           <w:r><w:tab/><w:rPr><w:b/><w:sz w:val="16"/></w:rPr><w:t>${vol} (${issue})</w:t></w:r>
         </w:p>
@@ -427,11 +510,10 @@ async function processDocxFile() {
       </w:ftr>`;
     }
 
-    // 1. Write Header & Footer XMLs safely
     docxZip.file("word/headerCustom1.xml", headerXml);
     docxZip.file("word/footerCustom1.xml", footerXml);
 
-    // 2. Safe Content Types Registration
+    // Register in [Content_Types].xml
     let contentTypesXml = await docxZip.file("[Content_Types].xml").async("text");
     if (!contentTypesXml.includes("headerCustom1.xml")) {
       contentTypesXml = contentTypesXml.replace('</Types>', 
@@ -441,7 +523,7 @@ async function processDocxFile() {
       docxZip.file("[Content_Types].xml", contentTypesXml);
     }
 
-    // 3. Safe Relationships Registration in word/_rels/document.xml.rels
+    // Register in word/_rels/document.xml.rels
     let relsXml = await docxZip.file("word/_rels/document.xml.rels").async("text");
     const rIdHeader = "rIdCustomHeader99";
     const rIdFooter = "rIdCustomFooter99";
@@ -454,46 +536,38 @@ async function processDocxFile() {
       docxZip.file("word/_rels/document.xml.rels", relsXml);
     }
 
-    // 4. Update word/document.xml (Inject Margins & Links to Header/Footer without corrupting body)
+    // Inject Margins & References into word/document.xml
     let docXml = await docxZip.file("word/document.xml").async("text");
 
     const headerRef = `<w:headerReference w:type="default" r:id="${rIdHeader}"/>`;
     const footerRef = `<w:footerReference w:type="default" r:id="${rIdFooter}"/>`;
     const pgMarTag = `<w:pgMar w:top="${topDxa}" w:bottom="${bottomDxa}" w:left="${leftDxa}" w:right="${rightDxa}" w:header="708" w:footer="708" w:gutter="0"/>`;
 
-    // Regex safely replaces existing <w:pgMar ... />
     if (docXml.includes("<w:pgMar")) {
       docXml = docXml.replace(/<w:pgMar[^>]*\/>/g, pgMarTag);
     }
 
-    // Attach Header & Footer to <w:sectPr>
     if (docXml.includes("<w:sectPr")) {
-      // Remove any previous conflicting header/footer references
       docXml = docXml.replace(/<w:headerReference[^>]*\/>/g, "");
       docXml = docXml.replace(/<w:footerReference[^>]*\/>/g, "");
-
-      // Prepend references inside <w:sectPr>
       docXml = docXml.replace(/<w:sectPr([^>]*)>/, `<w:sectPr$1>${headerRef}${footerRef}`);
     } else {
-      // If sectPr is missing, wrap it inside w:body
       docXml = docXml.replace('</w:body>', `<w:sectPr>${headerRef}${footerRef}${pgMarTag}</w:sectPr></w:body>`);
     }
 
     docxZip.file("word/document.xml", docXml);
 
-    // 5. Generate Safe, Clean File Blob
     const updatedContent = await docxZip.generateAsync({
       type: "blob",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       compression: "DEFLATE"
     });
 
-    // Save File
     const originalName = currentFile.name.replace(/\.[^/.]+$/, "");
     saveAs(updatedContent, `${originalName}_Formatted.docx`);
 
     statusBox.className = 'status-alert alert alert-success';
-    statusBox.innerText = '✅ फ़ाइल सफलतापूर्वक अपडेट हो गई है और डाउनलोड हो चुकी है! MS Word में सुरक्षित रूप से खुलेगी।';
+    statusBox.innerText = '✅ लोगो, हेडर, फुटर और मार्जिन्स सफलतापूर्वक जोड़ दिए गए हैं! फ़ाइल डाउनलोड हो चुकी है।';
 
   } catch (error) {
     console.error(error);
