@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edwin Incorporation — Journal Template & AI Design Portal</title>
-
+  <title>Edwin Incorporation — Journal Template Updater</title>
   <!-- JSZip & FileSaver -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -14,7 +13,6 @@
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    
     body {
       margin: 0;
       padding: 30px 15px;
@@ -32,7 +30,6 @@
       align-items: center;
       min-height: 100vh;
     }
-
     .card {
       width: 100%;
       max-width: 680px;
@@ -45,7 +42,6 @@
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-top: 5px solid #0056b3;
     }
-
     .brand-header {
       display: flex;
       align-items: center;
@@ -56,7 +52,6 @@
       margin-bottom: 20px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
     }
-
     .brand-logo {
       width: 58px !important;
       height: 58px !important;
@@ -65,7 +60,6 @@
       object-fit: contain;
       display: inline-block;
     }
-
     .brand-title {
       margin: 0;
       color: #003366;
@@ -73,14 +67,12 @@
       font-weight: 800;
       line-height: 1.1;
     }
-
     .brand-sub {
       margin: 3px 0 0 0;
       color: #475569;
       font-size: 12px;
       font-weight: 600;
     }
-    
     .drop-zone {
       border: 2px dashed rgba(255, 255, 255, 0.6);
       border-radius: 10px;
@@ -91,37 +83,31 @@
       margin-bottom: 12px;
       transition: all 0.2s;
     }
-
     .drop-zone.active {
       border-color: #f5a623;
       background: #ffffff;
     }
-
     .drop-zone p {
       margin: 0;
       font-size: 13.5px;
       color: #0f172a;
       font-weight: 700;
     }
-
     .drop-zone span {
       display: block;
       font-size: 11px;
       color: #475569;
       margin-top: 3px;
     }
-
     .full-row {
       margin-bottom: 12px;
     }
-
     .grid-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 12px;
     }
-
     .input-group label {
       display: block;
       font-size: 12.5px;
@@ -130,8 +116,7 @@
       color: #ffffff;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
     }
-
-    .input-group input, .input-group textarea {
+    .input-group input {
       width: 100%;
       padding: 10px 12px;
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -141,40 +126,10 @@
       outline: none;
       color: #0f172a;
     }
-
-    .input-group input:focus, .input-group textarea:focus { 
+    .input-group input:focus { 
       border-color: #38bdf8;
       box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
     }
-
-    .ai-box {
-      background: rgba(2, 132, 199, 0.15);
-      border: 1px dashed #38bdf8;
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-
-    .ai-box label {
-      color: #38bdf8;
-      font-size: 13px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 6px;
-    }
-
-    .ai-box textarea {
-      width: 100%;
-      height: 65px;
-      resize: vertical;
-      font-size: 13px;
-      border-radius: 6px;
-      padding: 8px 10px;
-      border: 1px solid #94a3b8;
-    }
-
     .btn-update {
       width: 100%;
       padding: 14px;
@@ -191,9 +146,9 @@
       transition: background 0.2s;
       box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
     }
-
-    .btn-update:hover { background: #0369a1; }
-    
+    .btn-update:hover { 
+      background: #0369a1; 
+    }
     .status-msg {
       margin-top: 10px;
       font-size: 13px;
@@ -229,13 +184,7 @@
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
   </div>
 
-  <!-- 3. AI DESIGN ASSISTANT -->
-  <div class="ai-box">
-    <label>✨ AI Design Assistant (Hindi ya Hinglish me design batayein):</label>
-    <textarea id="valPrompt" placeholder="e.g. Title red kar dena or title font size 16 kar dena, font Arial Black karo..."></textarea>
-  </div>
-
-  <!-- 4. JOURNAL TITLE -->
+  <!-- 3. JOURNAL TITLE -->
   <div class="full-row">
     <div class="input-group">
       <label>NEW Journal Title (Optional):</label>
@@ -243,7 +192,7 @@
     </div>
   </div>
 
-  <!-- 5. BASIC METADATA FIELDS -->
+  <!-- 4. BASIC METADATA FIELDS -->
   <div class="grid-row">
     <div class="input-group">
       <label>NEW Volume:</label>
@@ -278,7 +227,10 @@
     const dropZone = document.getElementById(dropId);
     const input = document.getElementById(inputId);
 
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('active'); });
+    dropZone.addEventListener('dragover', (e) => { 
+      e.preventDefault(); 
+      dropZone.classList.add('active'); 
+    });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
@@ -313,56 +265,6 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  // Smart Parser for Font, Color, Size, Italic & Bold
-  function parseAIPromptSmart(prompt) {
-    const p = prompt.toLowerCase();
-    
-    // 1. Font detection
-    let font = "";
-    if (p.includes("arial black")) font = "Arial Black";
-    else if (p.includes("times")) font = "Times New Roman";
-    else if (p.includes("arial")) font = "Arial";
-    else if (p.includes("segoe")) font = "Segoe UI Black";
-    else if (p.includes("georgia")) font = "Georgia";
-    else if (p.includes("calibri")) font = "Calibri";
-
-    // 2. Remove font names so "Arial Black" doesn't falsely trigger black color
-    let colorSearch = p.replace("arial black", "").replace("segoe ui black", "");
-
-    // 3. Color detection
-    let color = "";
-    if (colorSearch.includes("yellow") || colorSearch.includes("peela")) {
-      color = "FFD700"; // Rich Golden Yellow
-    } else if (colorSearch.includes("gold") || colorSearch.includes("golden") || colorSearch.includes("sonehra")) {
-      color = "C9A227";
-    } else if (colorSearch.includes("red") || colorSearch.includes("lal")) {
-      color = "C00000"; // Standard Red
-    } else if (colorSearch.includes("navy") || colorSearch.includes("dark blue") || colorSearch.includes("gehra neela")) {
-      color = "1F497D";
-    } else if (colorSearch.includes("blue") || colorSearch.includes("neela")) {
-      color = "003366";
-    } else if (colorSearch.includes("green") || colorSearch.includes("hara")) {
-      color = "008000";
-    } else if (colorSearch.includes("black") || colorSearch.includes("kala")) {
-      color = "000000";
-    }
-
-    // 4. Font Size detection (e.g. "size 16", "font size 16", "16 pt")
-    let halfPoints = null;
-    let sizeMatch = p.match(/(?:font\s*)?size[:\s]*([0-9]{1,2})/i) || p.match(/([0-9]{1,2})\s*(?:pt|point)/i);
-    if (sizeMatch && sizeMatch[1]) {
-      let pt = parseInt(sizeMatch[1]);
-      if (pt > 6 && pt < 72) {
-        halfPoints = pt * 2; // Word XML uses half-points (16pt = 32)
-      }
-    }
-
-    let italic = p.includes("italic") || p.includes("tircha");
-    let bold = p.includes("bold") || p.includes("mota");
-
-    return { font, color, halfPoints, italic, bold };
-  }
-
   async function processOldDocx() {
     if (!docBuffer) {
       alert("Kripya pehle apni purani template file (.docx) drop ya select karein!");
@@ -388,25 +290,12 @@
         }
       }
 
-      // 2. Parse Prompt
-      const promptText = document.getElementById('valPrompt').value.trim();
-      let aiResult = { font: "", color: "", halfPoints: null, italic: false, bold: false };
-      
-      if (promptText) {
-        aiResult = parseAIPromptSmart(promptText);
-      }
-
+      // 2. Form Values
       const title = document.getElementById('valTitle').value.trim();
       const vol = document.getElementById('valVol').value.trim();
       const issue = document.getElementById('valIssue').value.trim();
       const issn = document.getElementById('valISSN').value.trim();
       const url = document.getElementById('valURL').value.trim();
-
-      const targetFont = aiResult.font;
-      const targetColor = aiResult.color;
-      const targetHalfPoints = aiResult.halfPoints;
-      const makeItalic = aiResult.italic;
-      const makeBold = aiResult.bold;
 
       // HEADER & FOOTER SABHI XML FILES SCAN KARNA
       const targetXmls = [];
@@ -419,53 +308,18 @@
       for (let path of targetXmls) {
         let text = await zip.file(path).async("string");
 
-        // A. JOURNAL TITLE & AI STYLING REPLACEMENT
-        if (path.includes("header")) {
+        // A. Title update
+        if (path.includes("header") && title) {
           text = text.replace(/<w:txbxContent>[\s\S]*?<\/w:txbxContent>/gi, (tbBlock) => {
             if (!/Volume|ISSN|http|www/i.test(tbBlock)) {
-              let modifiedBlock = tbBlock;
-              
-              // Title text replace
-              if (title) {
-                let first = true;
-                modifiedBlock = modifiedBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
-                  if (first) {
-                    first = false;
-                    return `<w:t>${xmlSafe(title)}</w:t>`;
-                  }
-                  return `<w:t></w:t>`;
-                });
-              }
-
-              // Font replace (Ascii, hAnsi, Cs sabhi ko update karega)
-              if (targetFont) {
-                modifiedBlock = modifiedBlock.replace(/w:ascii="[^"]*"/gi, `w:ascii="${targetFont}"`);
-                modifiedBlock = modifiedBlock.replace(/w:hAnsi="[^"]*"/gi, `w:hAnsi="${targetFont}"`);
-                modifiedBlock = modifiedBlock.replace(/w:cs="[^"]*"/gi, `w:cs="${targetFont}"`);
-              }
-
-              // Color replace (Word ka themeColor hatakar direct color apply karega)
-              if (targetColor) {
-                modifiedBlock = modifiedBlock.replace(/<w:color\s+[^>]*\/>/gi, `<w:color w:val="${targetColor}"/>`);
-              }
-
-              // Font Size replace (16pt -> 32 half-points)
-              if (targetHalfPoints) {
-                modifiedBlock = modifiedBlock.replace(/<w:sz\s+[^>]*\/>/gi, `<w:sz w:val="${targetHalfPoints}"/>`);
-                modifiedBlock = modifiedBlock.replace(/<w:szCs\s+[^>]*\/>/gi, `<w:szCs w:val="${targetHalfPoints}"/>`);
-              }
-
-              // Italic
-              if (makeItalic && !modifiedBlock.includes('<w:i/>')) {
-                modifiedBlock = modifiedBlock.replace(/<w:rPr>/gi, '<w:rPr><w:i/>');
-              }
-
-              // Bold
-              if (makeBold && !modifiedBlock.includes('<w:b/>')) {
-                modifiedBlock = modifiedBlock.replace(/<w:rPr>/gi, '<w:rPr><w:b/>');
-              }
-
-              return modifiedBlock;
+              let first = true;
+              return tbBlock.replace(/<w:t\b[^>]*>[\s\S]*?<\/w:t>/gi, () => {
+                if (first) {
+                  first = false;
+                  return `<w:t>${xmlSafe(title)}</w:t>`;
+                }
+                return `<w:t></w:t>`;
+              });
             }
             return tbBlock;
           });
@@ -475,7 +329,7 @@
         if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
         if (issue) text = text.replace(/(Issue[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(issue)}`);
 
-        // C. ISSN COMPLETE SWEEP
+        // C. ISSN update
         if (issn) {
           text = text.replace(/<w:p\b[^>]*>[\s\S]*?<\/w:p>/gi, (pBlock) => {
             if (/ISSN/i.test(pBlock)) {
@@ -493,11 +347,10 @@
           text = text.replace(/<w:t\b[^>]*>\s*-0120\s*<\/w:t>/gi, `<w:t></w:t>`);
         }
 
-        // D. FOOTER URL & EXACT SCHEMA TAB REPLACEMENT
+        // D. Footer URL & tab replacement
         if (path.includes("footer")) {
           text = text.replace(/<w:jc\s+w:val="right"\s*\/>/gi, '<w:tabs><w:tab w:val="right" w:pos="9026"/></w:tabs>');
         }
-
         if (url) {
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             let replaced = false;
@@ -521,8 +374,7 @@
                   }
                   return `<w:t></w:t>`;
                 }
-                return tTag;
-              });
+                return tTag;              });
             }
             return pBlock;
           });
@@ -565,7 +417,6 @@
 
       saveAs(outputBlob, "Updated_Journal_Paper.docx");
       statusMsg.innerText = "✔ Document सफलतापूर्वक डाउनलोड हो गया!";
-
     } catch (e) {
       alert("Error: " + e.message);
     } finally {
@@ -574,6 +425,5 @@
     }
   }
 </script>
-
 </body>
 </html>
