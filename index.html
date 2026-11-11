@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edwin Incorporation — Journal Template Updater</title>
-
   <!-- JSZip & FileSaver -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -14,8 +13,7 @@
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    
-body {
+    body {
       margin: 0;
       padding: 30px 15px;
       background-color: #081426;
@@ -31,17 +29,15 @@ body {
       align-items: center;
       min-height: 100vh;
     }
-
-   .card {
+    .card {
       width: 100%;
       max-width: 680px;
-      background: #ffffff !important; /* Pura clean white */
+      background: #ffffff !important;
       border-radius: 14px;
       padding: 28px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
       border-top: 4px solid #f5a623;
     }
-
     .brand-header {
       display: flex;
       align-items: center;
@@ -50,13 +46,11 @@ body {
       padding-bottom: 15px;
       margin-bottom: 20px;
     }
-
     .brand-logo {
       width: 62px;
       height: 62px;
       object-fit: contain;
     }
-
     .brand-title {
       margin: 0;
       color: #003366;
@@ -64,14 +58,12 @@ body {
       font-weight: 800;
       line-height: 1.1;
     }
-
     .brand-sub {
       margin: 4px 0 0 0;
       color: #475569;
       font-size: 12px;
       font-weight: 600;
     }
-    
     .drop-zone {
       border: 2px dashed #0056b3;
       border-radius: 8px;
@@ -82,33 +74,31 @@ body {
       margin-bottom: 14px;
       transition: all 0.2s;
     }
-
     .drop-zone.active {
       border-color: #f5a623;
       background: #eff6ff;
     }
-
     .drop-zone p {
       margin: 0;
       font-size: 14px;
       color: #1e293b;
       font-weight: 700;
     }
-
     .drop-zone span {
       display: block;
       font-size: 11px;
       color: #64748b;
       margin-top: 4px;
     }
-
     .grid-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 12px;
     }
-
+    .input-group {
+      margin-bottom: 12px;
+    }
     .input-group label {
       display: block;
       font-size: 12px;
@@ -116,7 +106,6 @@ body {
       margin-bottom: 4px;
       color: #334155;
     }
-
     .input-group input {
       width: 100%;
       padding: 9px 12px;
@@ -125,9 +114,9 @@ body {
       font-size: 13.5px;
       outline: none;
     }
-
-    .input-group input:focus { border-color: #0056b3; }
-
+    .input-group input:focus { 
+      border-color: #0056b3; 
+    }
     .btn-update {
       width: 100%;
       padding: 14px;
@@ -143,8 +132,9 @@ body {
       margin-top: 15px;
       transition: background 0.2s;
     }
-
-    .btn-update:hover { background: #001f3f; }
+    .btn-update:hover { 
+      background: #001f3f; 
+    }
   </style>
 </head>
 <body>
@@ -155,25 +145,31 @@ body {
     <img src="logo.png" alt="Edwin Incorporation" class="brand-logo" onerror="this.src='https://raw.githubusercontent.com/vashumehra/edwin-jobs/main/logo.png'">
     <div>
       <h2 class="brand-title">Edwin Incorporation</h2>
-      <p class="brand-sub">Research Paper Header &amp; Footer Automation Portal</p>
+      <p class="brand-sub">Research Paper Header & Footer Automation Portal</p>
     </div>
   </div>
 
   <!-- 1. OLD FILE DROP / SELECT -->
   <div class="drop-zone" id="docDropZone" onclick="document.getElementById('docFile').click()">
-    <p id="docStatus">📁 1. OLD File Drag &amp; Drop Karein (.docx)</p>
+    <p id="docStatus">📁 1. OLD File Drag & Drop Karein (.docx)</p>
     <span>OLD file ka table format, margins aur lines bilkul safe rahengi</span>
     <input type="file" id="docFile" accept=".docx" style="display: none;">
   </div>
 
   <!-- 2. NEW LOGO DROP / SELECT -->
   <div class="drop-zone" id="logoDropZone" onclick="document.getElementById('logoFile').click()">
-    <p id="logoStatus">🖼 2. NEW Journal Logo Drag &amp; Drop Karein (Image)</p>
+    <p id="logoStatus">🖼 2. NEW Journal Logo Drag & Drop Karein (Image)</p>
     <span>Purane logo ki jagah NEW logo auto-replace ho jayega (Optional)</span>
     <input type="file" id="logoFile" accept="image/*" style="display: none;">
   </div>
 
-  <!-- 3. BASIC FIELDS -->
+  <!-- 3. TITLE FIELD (NEW) -->
+  <div class="input-group">
+    <label>NEW Title / Journal Name (Optional):</label>
+    <input type="text" id="valTitle" placeholder="e.g. International Journal of Science and Engineering">
+  </div>
+
+  <!-- 4. BASIC FIELDS -->
   <div class="grid-row">
     <div class="input-group">
       <label>NEW Volume:</label>
@@ -207,7 +203,10 @@ body {
     const dropZone = document.getElementById(dropId);
     const input = document.getElementById(inputId);
 
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('active'); });
+    dropZone.addEventListener('dragover', (e) => { 
+      e.preventDefault(); 
+      dropZone.classList.add('active'); 
+    });
     dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
@@ -239,7 +238,7 @@ body {
   setupDrop('logoDropZone', 'logoFile', 'logoStatus', 'logo');
 
   function xmlSafe(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return str.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
   }
 
   async function processOldDocx() {
@@ -262,21 +261,27 @@ body {
       }
 
       // 2. Form Values
+      const title = document.getElementById('valTitle').value.trim();
       const vol = document.getElementById('valVol').value.trim();
       const issue = document.getElementById('valIssue').value.trim();
       const issn = document.getElementById('valISSN').value.trim();
       const url = document.getElementById('valURL').value.trim();
 
-      // Scan all header AND footer XML files
+      // Scan all header, footer, and body XML files
       const targetXmls = [];
       zip.forEach((path) => {
-        if ((path.startsWith("word/header") || path.startsWith("word/footer")) && path.endsWith(".xml")) {
+        if ((path.startsWith("word/header") || path.startsWith("word/footer") || path === "word/document.xml") && path.endsWith(".xml")) {
           targetXmls.push(path);
         }
       });
 
       for (let path of targetXmls) {
         let text = await zip.file(path).async("string");
+
+        // Title update: Agar template me [TITLE] ya Title placeholder ho
+        if (title) {
+          text = text.replace(/(\[TITLE\]|\{TITLE\}|Title:\s*[^\r\n<]+)/gi, xmlSafe(title));
+        }
 
         // Volume update
         if (vol) text = text.replace(/(Volume[:\s]*)[0-9A-Za-z]+/gi, `$1${xmlSafe(vol)}`);
@@ -287,7 +292,7 @@ body {
         // ISSN update
         if (issn) text = text.replace(/(ISSN[:\s]*)[0-9\-xX]+/gi, `$1${xmlSafe(issn)}`);
         
-        // Complete URL & Link Replacement Logic
+        // URL Replacement Logic
         if (url) {
           text = text.replace(/<w:hyperlink[^>]*>[\s\S]*?<\/w:hyperlink>/gi, (match) => {
             return match.replace(/<w:t[^>]*>[\s\S]*?<\/w:t>/gi, `<w:t>${xmlSafe(url)}</w:t>`);
@@ -324,12 +329,10 @@ body {
       });
 
       saveAs(outputBlob, "Updated_Journal_Paper.docx");
-
     } catch (e) {
       alert("Error: " + e.message);
     }
   }
 </script>
-
 </body>
 </html>
